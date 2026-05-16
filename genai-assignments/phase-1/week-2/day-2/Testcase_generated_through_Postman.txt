@@ -1,0 +1,33 @@
+{
+  "id": "chatcmpl-9908a11d-712a-4886-8d5c-ed72a06cd6ea",
+  "object": "chat.completion",
+  "created": 1778904843,
+  "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Here are the 10 detailed, testable test cases derived from the provided User Story and Acceptance Criteria:\n\n**TC_1**\n- Title: Auto-Refresh of Dynamic Queue List\n- Preconditions: Doctor dashboard is open, patient status changes in the system\n- Test Steps: \n  1. Open the doctor dashboard.\n  2. Change a patient's status in the system.\n  3. Wait for 30 seconds.\n  4. Verify the queue list on the doctor dashboard.\n- Test Data: Patient status change (e.g., from routine to critical)\n- Expected Result: The queue list updates automatically within 30 seconds to reflect the patient's new status.\n\n**TC_2**\n- Title: Auto-Refresh with No Patient Status Change\n- Preconditions: Doctor dashboard is open, no patient status changes\n- Test Steps: \n  1. Open the doctor dashboard.\n  2. Wait for 30 seconds.\n  3. Verify the queue list on the doctor dashboard.\n- Test Data: No patient status changes\n- Expected Result: The queue list remains unchanged.\n\n**TC_3**\n- Title: Filter by Emergency - Critical Patients Only\n- Preconditions: Doctor dashboard is open, patients with different priorities exist\n- Test Steps: \n  1. Open the doctor dashboard.\n  2. Apply the Emergency filter.\n  3. Verify the patients visible in the queue list.\n- Test Data: Patients with critical and routine priorities\n- Expected Result: Only patients with critical priority are visible.\n\n**TC_4**\n- Title: Filter by Emergency - No Critical Patients\n- Preconditions: Doctor dashboard is open, no patients with critical priority exist\n- Test Steps: \n  1. Open the doctor dashboard.\n  2. Apply the Emergency filter.\n  3. Verify the patients visible in the queue list.\n- Test Data: Patients with only routine priorities\n- Expected Result: The queue list is empty.\n\n**TC_5**\n- Title: Filter by Emergency - Multiple Critical Patients\n- Preconditions: Doctor dashboard is open, multiple patients with critical priority exist\n- Test Steps: \n  1. Open the doctor dashboard.\n  2. Apply the Emergency filter.\n  3. Verify the patients visible in the queue list.\n- Test Data: Multiple patients with critical priority\n- Expected Result: All patients with critical priority are visible.\n\n**TC_6**\n- Title: Remove Emergency Filter\n- Preconditions: Doctor dashboard is open, Emergency filter is applied\n- Test Steps: \n  1. Open the doctor dashboard with the Emergency filter applied.\n  2. Remove the Emergency filter.\n  3. Verify the patients visible in the queue list.\n- Test Data: Patients with critical and routine priorities\n- Expected Result: All patients with different priorities are visible.\n\n**TC_7**\n- Title: Auto-Refresh with Emergency Filter Applied\n- Preconditions: Doctor dashboard is open, Emergency filter is applied, patient status changes\n- Test Steps: \n  1. Open the doctor dashboard with the Emergency filter applied.\n  2. Change a patient's status in the system.\n  3. Wait for 30 seconds.\n  4. Verify the queue list on the doctor dashboard.\n- Test Data: Patient status change (e.g., from routine to critical)\n- Expected Result: The queue list updates automatically within 30 seconds to reflect the patient's new status, showing only critical patients.\n\n**TC_8**\n- Title: Invalid Filter Input\n- Preconditions: Doctor dashboard is open\n- Test Steps: \n  1. Open the doctor dashboard.\n  2. Attempt to apply an invalid filter (e.g., invalid priority).\n  3. Verify the error handling.\n- Test Data: Invalid filter input\n- Expected Result: An error message is displayed, and the queue list remains unchanged.\n\n**TC_9**\n- Title: Filter by Emergency - Patient Status Change from Critical to Routine\n- Preconditions: Doctor dashboard is open, Emergency filter is applied, patient with critical priority exists\n- Test Steps: \n  1. Open the doctor dashboard with the Emergency filter applied.\n  2. Change a patient's status from critical to routine.\n  3. Wait for 30 seconds.\n  4. Verify the queue list on the doctor dashboard.\n- Test Data: Patient status change from critical to routine\n- Expected Result: The patient is removed from the queue list.\n\n**TC_10**\n- Title: Filter by Emergency - Patient Status Change from Routine to Critical\n- Preconditions: Doctor dashboard is open, Emergency filter is applied, patient with routine priority exists\n- Test Steps: \n  1. Open the doctor dashboard with the Emergency filter applied.\n  2. Change a patient's status from routine to critical.\n  3. Wait for 30 seconds.\n  4. Verify the queue list on the doctor dashboard.\n- Test Data: Patient status change from routine to critical\n- Expected Result: The patient is added to the queue list."
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "queue_time": 0.179854858,
+    "prompt_tokens": 382,
+    "prompt_time": 0.017183164,
+    "completion_tokens": 1039,
+    "completion_time": 2.352781445,
+    "total_tokens": 1421,
+    "total_time": 2.369964609
+  },
+  "usage_breakdown": null,
+  "system_fingerprint": "fp_4221711889",
+  "x_groq": {
+    "id": "req_01krqfve93fxb9krps8n2fkhqk",
+    "seed": 1023750605
+  },
+  "service_tier": "on_demand"
+}
