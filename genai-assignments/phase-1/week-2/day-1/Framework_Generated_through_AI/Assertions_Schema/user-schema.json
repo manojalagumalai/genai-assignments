@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "User Schema",
+  "description": "JSON Schema for a single User API response",
+  "type": "object",
+  "required": ["id", "name", "email", "status"],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Unique user identifier",
+      "minimum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Full name of the user",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "email": {
+      "type": "string",
+      "description": "User email address",
+      "format": "email"
+    },
+    "status": {
+      "type": "string",
+      "description": "Account status",
+      "enum": ["active", "inactive", "pending"]
+    },
+    "role": {
+      "type": "string",
+      "description": "User role",
+      "enum": ["admin", "user", "guest"]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,362 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# API Automation CI/CD Pipeline
+# Framework: RestAssured + TestNG + Allure + Apache POI + YAML
+#
+# Triggers:
+#   - Push to main / develop
+#   - Pull Request to main
+#   - Manual dispatch (choose env + suite)
+#   - Scheduled nightly regression (00:00 UTC Mon–Fri)
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: API Automation Tests
+
+on:
+
+  # ── Auto trigger on push ──────────────────────────────────────────────
+  push:
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'docs/**'
+
+  # ── Auto trigger on PR to main ───────────────────────────────────────
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+
+  # ── Manual trigger with input options ────────────────────────────────
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'qa'
+        type: choice
+        options:
+          - dev
+          - qa
+          - staging
+      suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'regression'
+        type: choice
+        options:
+          - testng
+          - smoke
+          - regression
+          - security
+      retries:
+        description: 'Number of retries for failed tests'
+        required: false
+        default: '1'
+        type: string
+
+  # ── Nightly scheduled regression ─────────────────────────────────────
+  schedule:
+    - cron: '0 0 * * 1-5'   # 00:00 UTC, Monday–Friday
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ENVIRONMENT VARIABLES
+# ═══════════════════════════════════════════════════════════════════════════
+env:
+  JAVA_VERSION: '11'
+  DEFAULT_ENV:   'qa'
+  DEFAULT_SUITE: 'regression'
+  ALLURE_VERSION: '2.25.0'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# JOBS
+# ═══════════════════════════════════════════════════════════════════════════
+jobs:
+
+  # ─────────────────────────────────────────────────────────────────────
+  # JOB 1: Smoke Tests (fast gate — runs first)
+  # ─────────────────────────────────────────────────────────────────────
+  smoke-tests:
+    name: 🚀 Smoke Tests [${{ github.event.inputs.environment || 'qa' }}]
+    runs-on: ubuntu-latest
+    # Skip smoke job on manual dispatch if a non-smoke suite is selected
+    if: |
+      github.event_name != 'workflow_dispatch' ||
+      github.event.inputs.suite == 'smoke' ||
+      github.event.inputs.suite == 'regression' ||
+      github.event.inputs.suite == 'testng'
+
+    steps:
+
+      # ── Checkout ───────────────────────────────────────────────────
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      # ── Java Setup ─────────────────────────────────────────────────
+      - name: ☕ Set Up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # ── Inject secrets into YAML configs ───────────────────────────
+      - name: 🔐 Inject API Tokens into Config
+        run: |
+          TARGET_ENV="${{ github.event.inputs.environment || env.DEFAULT_ENV }}"
+          CONFIG_FILE="src/test/resources/config/${TARGET_ENV}.yml"
+
+          echo "Injecting token for environment: ${TARGET_ENV}"
+
+          # Replace placeholder token with GitHub Secret
+          sed -i "s|token:.*|token: ${{ secrets.API_BEARER_TOKEN }}|g" \
+            "${CONFIG_FILE}"
+
+      # ── Maven Cache ────────────────────────────────────────────────
+      - name: 📦 Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # ── Run Smoke Tests ────────────────────────────────────────────
+      - name: 🧪 Run Smoke Tests
+        run: |
+          mvn test \
+            -Dsuite=smoke \
+            -Denv=${{ github.event.inputs.environment || env.DEFAULT_ENV }} \
+            -Dretries=0 \
+            --no-transfer-progress \
+            -B
+        continue-on-error: false
+
+      # ── Upload Allure Results ──────────────────────────────────────
+      - name: 📊 Upload Smoke Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-allure-results
+          path: allure-results/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────
+  # JOB 2: Full Regression (runs after smoke passes)
+  # ─────────────────────────────────────────────────────────────────────
+  regression-tests:
+    name: 🔁 Regression Tests [${{ github.event.inputs.environment || 'qa' }}]
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: |
+      always() &&
+      needs.smoke-tests.result == 'success' &&
+      (github.event_name != 'workflow_dispatch' ||
+       github.event.inputs.suite == 'regression' ||
+       github.event.inputs.suite == 'testng')
+
+    steps:
+
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set Up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 🔐 Inject API Tokens into Config
+        run: |
+          TARGET_ENV="${{ github.event.inputs.environment || env.DEFAULT_ENV }}"
+          sed -i "s|token:.*|token: ${{ secrets.API_BEARER_TOKEN }}|g" \
+            "src/test/resources/config/${TARGET_ENV}.yml"
+
+      - name: 📦 Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # ── Download history for Allure trend ─────────────────────────
+      - name: 📈 Download Allure History
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-history
+          path: allure-results/history
+        continue-on-error: true   # First run won't have history
+
+      # ── Run Regression Tests ───────────────────────────────────────
+      - name: 🧪 Run Regression Tests
+        run: |
+          mvn test \
+            -Dsuite=${{ github.event.inputs.suite || env.DEFAULT_SUITE }} \
+            -Denv=${{ github.event.inputs.environment || env.DEFAULT_ENV }} \
+            -Dretries=${{ github.event.inputs.retries || '1' }} \
+            --no-transfer-progress \
+            -B
+        continue-on-error: true   # Let report generate even on failure
+
+      # ── Generate Allure Report ─────────────────────────────────────
+      - name: 📊 Generate Allure Report
+        if: always()
+        run: |
+          curl -sL https://github.com/allure-framework/allure2/releases/download/${{ env.ALLURE_VERSION }}/allure-${{ env.ALLURE_VERSION }}.tgz \
+            | tar -xz -C /opt
+          export PATH="/opt/allure-${{ env.ALLURE_VERSION }}/bin:$PATH"
+          allure generate allure-results --clean -o allure-report
+          echo "✅ Allure report generated at: allure-report/"
+
+      # ── Upload Allure HTML Report ──────────────────────────────────
+      - name: 📤 Upload Allure HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
+
+      # ── Save Allure History for Trends ─────────────────────────────
+      - name: 💾 Save Allure History
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-history
+          path: allure-report/history/
+          retention-days: 90
+
+      # ── Upload Raw Results ─────────────────────────────────────────
+      - name: 📦 Upload Raw Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-allure-results
+          path: allure-results/
+          retention-days: 14
+
+      # ── Publish Allure Report to GitHub Pages ─────────────────────
+      - name: 🌐 Publish Allure Report to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-report
+          destination_dir: allure-report
+
+      # ── Parse Test Results for Summary ────────────────────────────
+      - name: 📋 Generate Test Summary
+        if: always()
+        run: |
+          echo "## 🧪 API Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌍 Environment | ${{ github.event.inputs.environment || env.DEFAULT_ENV }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📋 Suite | ${{ github.event.inputs.suite || env.DEFAULT_SUITE }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🌿 Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔁 Triggered By | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 👤 Actor | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🕐 Run ID | ${{ github.run_id }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Parse surefire XML for pass/fail counts
+          PASS=$(grep -roh 'tests="[0-9]*"' target/surefire-reports/*.xml 2>/dev/null \
+            | awk -F'"' '{s+=$2} END{print s}' || echo "N/A")
+          FAIL=$(grep -roh 'failures="[0-9]*"' target/surefire-reports/*.xml 2>/dev/null \
+            | awk -F'"' '{s+=$2} END{print s}' || echo "N/A")
+          SKIP=$(grep -roh 'skipped="[0-9]*"' target/surefire-reports/*.xml 2>/dev/null \
+            | awk -F'"' '{s+=$2} END{print s}' || echo "N/A")
+          ERROR=$(grep -roh 'errors="[0-9]*"' target/surefire-reports/*.xml 2>/dev/null \
+            | awk -F'"' '{s+=$2} END{print s}' || echo "N/A")
+
+          echo "### Test Counts" >> $GITHUB_STEP_SUMMARY
+          echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ✅ Passed  | ${PASS}  |" >> $GITHUB_STEP_SUMMARY
+          echo "| ❌ Failed  | ${FAIL}  |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⚠️ Errors  | ${ERROR} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ⏭ Skipped | ${SKIP}  |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 [View Full Allure Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/allure-report)" >> $GITHUB_STEP_SUMMARY
+
+      # ── Fail job if tests failed ───────────────────────────────────
+      - name: ✅ Assert Test Run Status
+        if: always()
+        run: |
+          FAIL=$(grep -roh 'failures="[0-9]*"' target/surefire-reports/*.xml 2>/dev/null \
+            | awk -F'"' '{s+=$2} END{print s}' || echo "0")
+          ERROR=$(grep -roh 'errors="[0-9]*"' target/surefire-reports/*.xml 2>/dev/null \
+            | awk -F'"' '{s+=$2} END{print s}' || echo "0")
+
+          if [ "$FAIL" -gt "0" ] || [ "$ERROR" -gt "0" ]; then
+            echo "❌ Test run FAILED — Failures: ${FAIL} | Errors: ${ERROR}"
+            exit 1
+          else
+            echo "✅ All tests PASSED"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────
+  # JOB 3: Security Tests (runs independently in parallel with regression)
+  # ─────────────────────────────────────────────────────────────────────
+  security-tests:
+    name: 🔐 Security Tests [${{ github.event.inputs.environment || 'qa' }}]
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+    if: |
+      always() &&
+      needs.smoke-tests.result == 'success' &&
+      (github.event_name != 'workflow_dispatch' ||
+       github.event.inputs.suite == 'security' ||
+       github.event.inputs.suite == 'regression')
+
+    steps:
+
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set Up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 🔐 Inject API Tokens into Config
+        run: |
+          TARGET_ENV="${{ github.event.inputs.environment || env.DEFAULT_ENV }}"
+          sed -i "s|token:.*|token: ${{ secrets.API_BEARER_TOKEN }}|g" \
+            "src/test/resources/config/${TARGET_ENV}.yml"
+
+      - name: 📦 Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: 🔒 Run Security Tests
+        run: |
+          mvn test \
+            -Dsuite=security \
+            -Denv=${{ github.event.inputs.environment || env.DEFAULT_ENV }} \
+            -Dretries=0 \
+            --no-transfer-progress \
+            -B
+
+      - name: 📤 Upload Security Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-allure-results
+          path: allure-results/
+          retention-days: 14
+

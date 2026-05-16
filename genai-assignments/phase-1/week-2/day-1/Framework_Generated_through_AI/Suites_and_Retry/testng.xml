@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+    FULL TEST SUITE
+    Runs all groups: smoke + regression + security
+    Command: mvn test
+             mvn test -Denv=qa
+-->
+<suite name="API Automation Suite - Full"
+       verbose="2"
+       parallel="methods"
+       thread-count="3"
+       data-provider-thread-count="3">
+
+    <!-- ── Global Parameters ────────────────────────────────────────────── -->
+    <parameter name="env"     value="qa"/>
+    <parameter name="retries" value="1"/>
+
+    <!-- ── Listeners ────────────────────────────────────────────────────── -->
+    <listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+        <listener class-name="com.api.listeners.RetryListener"/>
+    </listeners>
+
+    <!-- ── Test Groups ──────────────────────────────────────────────────── -->
+    <test name="User API Tests - Full" preserve-order="true">
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <include name="regression"/>
+                <include name="security"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.api.tests.users.UserApiTest"/>
+        </classes>
+    </test>
+
+</suite>
