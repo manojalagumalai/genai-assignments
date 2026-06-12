@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Users List Schema",
+  "description": "JSON Schema for the GET all users API response",
+  "type": "object",
+  "required": ["data", "total", "page", "pageSize"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/user"
+      }
+    },
+    "total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "page": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "pageSize": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "definitions": {
+    "user": {
+      "type": "object",
+      "required": ["id", "name", "email", "status"],
+      "properties": {
+        "id":        { "type": "integer" },
+        "name":      { "type": "string"  },
+        "email":     { "type": "string", "format": "email" },
+        "status":    { "type": "string", "enum": ["active", "inactive", "pending"] },
+        "role":      { "type": "string"  },
+        "createdAt": { "type": "string"  },
+        "updatedAt": { "type": "string"  }
+      }
+    }
+  }
+}

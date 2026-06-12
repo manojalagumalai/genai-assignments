@@ -1,0 +1,31 @@
+===HTML===
+<a href="/crmsfa/control/createLeadForm" id="ext-gen876">Create Lead</a>
+
+===JAVA===
+// Package declaration for the pages in the leaftaps application
+package com.leaftaps.pages;
+
+// Importing locator strategies and base methods for the project
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+/**
+ * This class represents the My Leads page in the leaftaps application.
+ * It provides methods to interact with elements and perform actions on the My Leads page.
+ */
+public class MyLeadsPage extends ProjectSpecificMethods {
+
+    /**
+     * Clicks on the 'Create Lead' link on the My Leads page.
+     *
+     * @return MyLeadsPage - returns the current page object for method chaining
+     */
+    public MyLeadsPage clickCreateLeadLink() {
+        // Locate and click the 'Create Lead' link using LINK_TEXT locator
+        click(locateElement(Locators.LINK_TEXT, "Create Lead"));
+        // Log the action in the test report
+        reportStep("Create Lead link is clicked", "pass");
+        // Return the current page object for further actions
+        return this;
+    }
+}

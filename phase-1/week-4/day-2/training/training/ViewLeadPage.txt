@@ -1,0 +1,54 @@
+===HTML===
+
+<div class="x-grid3-cell-inner x-grid3-col-partyId" unselectable="on" id="ext-gen781"><a class="linktext" href="/crmsfa/control/viewLead?partyId=10196" id="ext-gen839">10196</a></div>
+<div class="x-grid3-cell-inner x-grid3-col-firstName" unselectable="on" id="ext-gen840"><a class="linktext" href="/crmsfa/control/viewLead?partyId=10196" id="ext-gen841">TCS</a></div>
+<div class="x-grid3-cell-inner x-grid3-col-lastName" unselectable="on" id="ext-gen842"><a class="linktext" href="/crmsfa/control/viewLead?partyId=10196" id="ext-gen874">Abd</a></div>
+<div class="x-grid3-cell-inner x-grid3-col-companyName" unselectable="on" id="ext-gen857"><a class="linktext" href="/crmsfa/control/viewLead?partyId=10196" id="ext-gen858">M S</a></div>
+
+
+===JAVA===
+
+package com.leaftaps.pages;
+
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+/**
+ * Page object representing the View Lead page.
+ * Provides methods to verify lead details and perform actions like delete.
+ * @author Auto-generated
+ */
+public class ViewLeadPage extends ProjectSpecificMethods {
+
+	/**
+	 * Verifies the first name displayed on the View Lead page.
+	 * @param fName The expected first name
+	 * @return The current ViewLeadPage instance
+	 */
+	public ViewLeadPage verifyFirstName(String fName) {
+		verifyExactText(locateElement(Locators.ID,"viewLead_firstName_sp"), fName);
+		reportStep(fName+" is matching with first name", "pass");
+		return this;
+	}
+
+	/**
+	 * Verifies the company name displayed on the View Lead page.
+	 * @param CompanyName The expected company name
+	 * @return The current ViewLeadPage instance
+	 */
+	public ViewLeadPage verifyCompanyName(String CompanyName) {
+		verifyPartialText(locateElement(Locators.ID,"viewLead_companyName_sp"), CompanyName);
+		return this;
+	}
+
+	/**
+	 * Clicks the Delete link to delete the lead.
+	 * @return A new MyLeadsPage instance
+	 */
+	public MyLeadsPage clickDeleteLeadLink() {
+		click(locateElement(Locators.LINK_TEXT,"Delete"));
+		reportStep(" Clicked on DeleteLead Button", "pass");
+		return new MyLeadsPage();
+	}
+
+}

@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Testcase Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Global Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #f0f0f0 0%, #e8e8e8 100%);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            border-radius: 10px;
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #1976d2 0%, #1565c0 100%);
+            box-shadow: 0 0 6px rgba(25, 118, 210, 0.4);
+        }
+
+        /* Firefox Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #1976d2 #f0f0f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Header Section */
+        header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 2px solid #1565c0;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            color: #e3f2fd;
+        }
+
+        /* Main Layout Grid */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        /* Left Panel */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Section Styles */
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.1);
+            border-left: 4px solid #1976d2;
+            border: 1px solid #e3f2fd;
+            border-left: 4px solid #1976d2;
+        }
+
+        .section h2 {
+            color: #1565c0;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+            border-radius: 50%;
+        }
+
+        /* Instructions Section */
+        #instructions-section {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        }
+
+        #instructions-section ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        #instructions-section li {
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        #instructions-section strong {
+            color: #1565c0;
+        }
+
+        /* User Stories Section */
+        #user-stories-section {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+        }
+
+        #stories-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        #stories-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #stories-container::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #f1f1f1 0%, #e8e8e8 100%);
+            border-radius: 10px;
+        }
+
+        #stories-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+        }
+
+        #stories-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #1976d2 0%, #1565c0 100%);
+            box-shadow: 0 0 6px rgba(25, 118, 210, 0.5);
+        }
+
+        .user-story-item {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #1976d2;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .user-story-item:hover {
+            background: linear-gradient(135deg, #bbdefb 0%, #90caf9 100%);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+        }
+
+        .story-copy-btn {
+            width: 100%;
+            padding: 10px 12px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .story-copy-btn:hover {
+            background: #1565c0;
+            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.3);
+        }
+
+        .story-copy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .story-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+            cursor: pointer;
+            accent-color: #1976d2;
+            flex-shrink: 0;
+        }
+
+        .story-content {
+            flex: 1;
+        }
+
+        .story-label {
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .story-text {
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        .story-category {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.75em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* Stories Control Panel */
+        .stories-control-panel {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .select-all-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-all-checkbox:hover {
+            background: #e0e0e0;
+        }
+
+        .select-all-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1976d2;
+        }
+
+        .select-all-label {
+            font-weight: 600;
+            color: #1565c0;
+            cursor: pointer;
+        }
+
+        .selected-count {
+            background: #1976d2;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        /* Copy Buttons */
+        .copy-buttons-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .copy-samples-btn {
+            background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .copy-samples-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+        }
+
+        .copy-samples-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-samples-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .copy-samples-btn.secondary {
+            background: linear-gradient(135deg, #90caf9 0%, #64b5f6 100%);
+        }
+
+        /* Right Panel */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* Embedded Chat */
+        .embedded-chat {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .chat-header-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .chat-header-title {
+            font-weight: 700;
+            font-size: 1em;
+        }
+
+        .chat-header-subtitle {
+            font-size: 0.8em;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 2px;
+        }
+
+        .chat-status-dot {
+            width: 7px;
+            height: 7px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            min-height: 420px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 16px;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 8px; }
+        .chat-messages::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #42a5f5, #1976d2); border-radius: 10px; }
+
+        .chat-welcome {
+            text-align: center;
+            padding: 30px 20px;
+            color: #aaa;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .chat-message {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .chat-message.user { align-self: flex-end; }
+        .chat-message.bot  { align-self: flex-start; }
+        .chat-message.error { align-self: flex-start; }
+
+        .chat-sender-name {
+            font-size: 0.75em;
+            color: #999;
+            margin-bottom: 4px;
+            padding: 0 4px;
+        }
+
+        .chat-message.user .chat-sender-name { text-align: right; }
+
+        .chat-message-content {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user .chat-message-content {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.bot .chat-message-content {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-left: 3px solid #1976d2;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.error .chat-message-content {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            border-left: 3px solid #d32f2f;
+            color: #d32f2f;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-loading {
+            display: flex;
+            gap: 5px;
+            padding: 12px 16px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-left: 3px solid #1976d2;
+            border-radius: 12px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+            align-items: center;
+        }
+
+        .chat-loading span {
+            width: 8px;
+            height: 8px;
+            background: #1976d2;
+            border-radius: 50%;
+            animation: dot-bounce 1.2s infinite;
+        }
+
+        .chat-loading span:nth-child(2) { animation-delay: 0.2s; }
+        .chat-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-bounce {
+            0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
+            40%            { transform: scale(1);   opacity: 1; }
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .chat-input-area textarea {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-input-area textarea:focus {
+            border-color: #1976d2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.12);
+        }
+
+        .chat-send-btn {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #1976d2, #1565c0);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            opacity: 0.9;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Chat Action Buttons */
+        .chat-actions {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            flex-wrap: wrap;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .chat-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .chat-actions .btn.copy-btn {
+            background: #1976d2;
+            color: white;
+        }
+
+        .chat-actions .btn.copy-btn:hover {
+            background: #1565c0;
+            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.3);
+        }
+
+        .chat-actions .btn.clear-btn {
+            background: white;
+            color: #d32f2f;
+            border: 1px solid #d32f2f;
+        }
+
+        .chat-actions .btn.clear-btn:hover {
+            background: #ffebee;
+            box-shadow: 0 2px 6px rgba(211, 47, 47, 0.2);
+        }
+
+        .chat-actions .btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Override Langflow default styles to make chat always visible */
+        langflow-chat::part(root) {
+            all: unset !important;
+        }
+
+        /* Output Section */
+        #output-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            padding: 25px;
+            border: none;
+            box-shadow: none;
+        }
+
+        #output-section h2 {
+            color: #1565c0;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #output-section h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #1976d2;
+            border-radius: 50%;
+        }
+
+        /* Chat Output Area */
+        #chat-output {
+            flex: 1;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: 500px;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        #chat-output::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        #chat-output::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #f1f1f1 0%, #e8e8e8 100%);
+            border-radius: 10px;
+        }
+
+        #chat-output::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+        }
+
+        #chat-output::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #1976d2 0%, #1565c0 100%);
+            box-shadow: 0 0 6px rgba(25, 118, 210, 0.5);
+        }
+
+        .empty-state {
+            color: #999;
+            text-align: center;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        /* Scroll Hint */
+        #chat-output.has-overflow::after {
+            content: '👇 Scroll down for more';
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(180deg, transparent 0%, rgba(25, 118, 210, 0.1) 100%);
+            color: #1976d2;
+            font-size: 0.85em;
+            font-weight: 600;
+            border-top: 1px solid rgba(25, 118, 210, 0.1);
+        }
+
+        /* Message Styles */
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid #e0e0e0;
+        }
+
+        .message.generated {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 3px solid #1976d2;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #42a5f5 0%, #1976d2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+            border: 1px solid #1565c0;
+        }
+
+        .btn-copy:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+            border: 1px solid #d32f2f;
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Clear Chat Confirmation Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-box h3 {
+            color: #1565c0;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .modal-box p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 57, 53, 0.4);
+        }
+
+        .modal-btn-cancel {
+            background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+            color: #333;
+        }
+
+        .modal-btn-cancel:hover {
+            background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
+        }
+
+        /* Copy Options Modal */
+        .copy-options-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .copy-options-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-options-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            animation: slideUp 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .copy-options-box::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .copy-options-box::-webkit-scrollbar-track {
+            background: linear-gradient(180deg, #f1f1f1 0%, #e8e8e8 100%);
+            border-radius: 10px;
+        }
+
+        .copy-options-box::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%);
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+        }
+
+        .copy-options-box::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #1976d2 0%, #1565c0 100%);
+            box-shadow: 0 0 6px rgba(25, 118, 210, 0.5);
+        }
+
+        .copy-options-box h3 {
+            color: #1565c0;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-option-item {
+            background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
+            border-left: 4px solid #1976d2;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-option-item:hover {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            border-left-color: #4caf50;
+            transform: translateX(5px);
+        }
+
+        .copy-option-item:active {
+            transform: translateX(0);
+        }
+
+        .copy-option-label {
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+
+        .copy-option-description {
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        /* Output Stats */
+        .output-stats {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #1565c0;
+        }
+
+        .output-stats strong {
+            color: #1565c0;
+            font-weight: 700;
+        }
+
+        .copy-close-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
+            border: none;
+            border-radius: 6px;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .copy-close-btn:hover {
+            background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
+        }
+
+        /* Langflow Chat Widget Styling */
+        #langflow-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        /* Hide Langflow settings and unwanted elements */
+        .langflow-settings-button,
+        .langflow-settings,
+        .langflow-theme-toggle,
+        .langflow-dark-mode-toggle,
+        [data-testid="settings-button"],
+        .setting-icon,
+        .theme-icon {
+            display: none !important;
+        }
+
+        /* Override default Langflow styles */
+        .langflow-chat-frame {
+            border-radius: 12px !important;
+            box-shadow: 0 8px 24px rgba(25, 118, 210, 0.3) !important;
+            border: 2px solid #1976d2 !important;
+        }
+
+        .langflow-bubble-button {
+            width: 60px !important;
+            height: 60px !important;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+            border-radius: 50% !important;
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4) !important;
+            border: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer !important;
+        }
+
+        .langflow-bubble-button:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 16px rgba(25, 118, 210, 0.5) !important;
+        }
+
+        .langflow-bubble-button:active {
+            transform: scale(0.98) !important;
+        }
+
+        /* Chat bubble icon styling */
+        .langflow-bubble-icon,
+        .langflow-icon {
+            width: 32px !important;
+            height: 32px !important;
+            color: white !important;
+            font-size: 1.5em !important;
+        }
+
+        /* Fallback Chat Trigger Button (if Langflow doesn't load) */
+        #fallback-chat-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        #fallback-chat-trigger:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(25, 118, 210, 0.5);
+        }
+
+        #fallback-chat-trigger:active {
+            transform: scale(0.98);
+        }
+
+        #fallback-chat-trigger.hidden {
+            display: none !important;
+        }
+
+        /* Chat header styling */
+        .langflow-chat-header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 20px !important;
+        }
+
+        .langflow-chat-title {
+            color: white !important;
+            font-weight: 700 !important;
+            font-size: 1.1em !important;
+        }
+
+        .langflow-chat-subtitle {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-size: 0.85em !important;
+        }
+
+        /* Chat message styling */
+        .langflow-message {
+            border-radius: 8px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .langflow-user-message {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+            border-radius: 8px !important;
+            color: white !important;
+        }
+
+        .langflow-bot-message {
+            background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%) !important;
+            border-radius: 8px !important;
+            border-left: 3px solid #1976d2 !important;
+            color: #333 !important;
+        }
+
+        /* Input area styling */
+        .langflow-chat-input {
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+            padding: 12px !important;
+        }
+
+        .langflow-send-button {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .langflow-send-button:hover {
+            opacity: 0.9 !important;
+        }
+
+        /* Langflow messages container scrollbar */
+        .langflow-messages-container,
+        .langflow-chat-messages,
+        .langflow-chat-body {
+            overflow-y: auto !important;
+        }
+
+        .langflow-messages-container::-webkit-scrollbar,
+        .langflow-chat-messages::-webkit-scrollbar,
+        .langflow-chat-body::-webkit-scrollbar {
+            width: 8px !important;
+        }
+
+        .langflow-messages-container::-webkit-scrollbar-track,
+        .langflow-chat-messages::-webkit-scrollbar-track,
+        .langflow-chat-body::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+            border-radius: 10px !important;
+        }
+
+        .langflow-messages-container::-webkit-scrollbar-thumb,
+        .langflow-chat-messages::-webkit-scrollbar-thumb,
+        .langflow-chat-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #42a5f5 0%, #1976d2 100%) !important;
+            border-radius: 10px !important;
+        }
+
+        .langflow-messages-container::-webkit-scrollbar-thumb:hover,
+        .langflow-chat-messages::-webkit-scrollbar-thumb:hover,
+        .langflow-chat-body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #1976d2 0%, #1565c0 100%) !important;
+        }
+
+        /* Responsive positioning for Langflow */
+        @media (max-width: 768px) {
+            #langflow-widget {
+                bottom: 15px;
+                right: 15px;
+            }
+
+            .langflow-bubble-button {
+                width: 50px !important;
+                height: 50px !important;
+            }
+
+            .langflow-bubble-icon,
+            .langflow-icon {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 1.3em !important;
+            }
+
+            .langflow-chat-frame {
+                width: 320px !important;
+                height: 600px !important;
+            }
+        }
+
+        #chat-output.clearing {
+            animation: fadeOut 0.3s ease;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Toast Notification Enhanced */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+        }
+
+        .toast.error {
+            background: #ef5350;
+        }
+
+        .toast.info {
+            background: #1976d2;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Instructions Enhancement */
+        #instructions-section ul {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        #instructions-section li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 16px;
+        }
+
+        #instructions-section li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        #instructions-section li::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 30px;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(180deg, #1976d2 0%, transparent 100%);
+        }
+
+        #instructions-section li:last-child::after {
+            display: none;
+        }
+
+        .step-description {
+            font-size: 0.95em;
+            color: #666;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+
+        .step-highlight {
+            background: linear-gradient(120deg, #fff9c4 0%, #fff59d 100%);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            color: #f57f17;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .tip-box strong {
+            color: #2e7d32;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            #chat-output {
+                max-height: 400px;
+            }
+        }
+
+        /* Collapsible Section Styles */
+        .section.collapsible .collapsible-content {
+            max-height: 10000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .section.collapsible.collapsed .collapsible-content {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in, opacity 0.3s ease-in;
+        }
+
+        .toggle-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            vertical-align: middle;
+        }
+
+        .section.collapsed .toggle-button {
+            transform: rotate(-90deg);
+        }
+
+        .section h2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section h2 .header-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        /* Collapsible Section Styles */
+        .section.collapsible .collapsible-content {
+            max-height: 10000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+            opacity: 1;
+        }
+
+        .section.collapsible.collapsed .collapsible-content {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in, opacity 0.3s ease-in;
+        }
+
+        .toggle-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+            vertical-align: middle;
+        }
+
+        .section.collapsed .toggle-button {
+            transform: rotate(-90deg);
+        }
+
+        .section h2 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .section h2 .header-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            #chat-output {
+                max-height: 300px;
+            }
+
+            .btn {
+                min-width: 100px;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🧪 AI-Powered Testcase Generator</h1>
+            <p>Generate comprehensive test cases effortlessly using AI</p>
+        </header>
+
+        <!-- Langflow Configuration Info Box -->
+        <div style="background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); border-left: 4px solid #2e7d32; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 0.9em; line-height: 1.6;">
+            <strong style="color: #1b5e20;">✓ Langflow Configured:</strong> The AI-powered chat is ready! Look for the blue 🤖 icon in the <strong>bottom-right corner</strong>. Click it to open the chat and start generating test cases.
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(27, 94, 32, 0.2); font-size: 0.85em;">
+                <strong>💡 Tip:</strong> All scrollable areas have custom scrollbars. Scroll down in the chat output or user stories to see more content. The scrollbars are styled in blue to match the theme.
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left Panel: Instructions & User Stories -->
+            <div class="left-panel">
+                <!-- Instructions Section -->
+                <section class="section collapsible" id="instructions-section">
+                    <h2 onclick="toggleSection('instructions-section')">
+                        <span class="header-content">
+                            <span>📋 How to Use This Tool</span>
+                        </span>
+                        <span class="toggle-button">▼</span>
+                    </h2>
+                    <div class="collapsible-content">
+                    <ul>
+                        <li>
+                            <strong>Review Sample Stories</strong>
+                            <div class="step-description">
+                                Explore the <span class="step-highlight">Banking Domain</span> examples below to understand the expected format for user stories.
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Copy Sample Stories (Optional)</strong>
+                            <div class="step-description">
+                                Click the <span class="step-highlight">"Copy Sample Stories"</span> button to copy pre-written banking examples to your clipboard, or paste your own user stories.
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Open Langflow Chat Widget</strong>
+                            <div class="step-description">
+                                Look for the <span class="step-highlight">Langflow Chat Icon</span> in the top right corner of the screen. Click it to open the chat interface.
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Paste Your User Stories</strong>
+                            <div class="step-description">
+                                Paste your user stories or requirements into the Langflow chat window. Be descriptive for better results!
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Generate Test Cases</strong>
+                            <div class="step-description">
+                                The AI will process your input and generate comprehensive test cases. Wait for the AI to complete the analysis.
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Copy Generated Output</strong>
+                            <div class="step-description">
+                                Once test cases appear on the right side, click the <span class="step-highlight">"Copy Output"</span> button to copy them to your clipboard for use in your project.
+                            </div>
+                        </li>
+                        <li>
+                            <strong>Clear & Restart</strong>
+                            <div class="step-description">
+                                Use the <span class="step-highlight">"Clear Chat"</span> button anytime to reset and start with a new batch of test cases.
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="tip-box">
+                        <strong>💡 Pro Tips:</strong><br>
+                        • Provide detailed user stories with acceptance criteria for better test case generation<br>
+                        • Include edge cases and error scenarios in your input<br>
+                        • Review and customize generated test cases as needed
+                    </div>
+                    </div>
+                </section>
+
+                <!-- User Stories Section -->
+                <section class="section collapsible" id="user-stories-section">
+                    <h2 onclick="toggleSection('user-stories-section')">
+                        <span class="header-content">
+                            <span>🏦 Sample User Stories (Banking Domain)</span>
+                        </span>
+                        <span class="toggle-button">▼</span>
+                    </h2>
+                    <div class="collapsible-content">
+                    
+                    <!-- Stories Control Panel -->
+                    <div class="stories-control-panel">
+                        <label class="select-all-checkbox">
+                            <input type="checkbox" id="select-all-checkbox" onchange="toggleAllStories(this)">
+                            <span class="select-all-label">Select All</span>
+                        </label>
+                        <div class="selected-count" id="selected-count">0 selected</div>
+                    </div>
+
+                    <!-- Stories Container -->
+                    <div id="stories-container">
+                        <!-- Account Management -->
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Account Management</div>
+                                <div class="story-label">Story 1: Fund Transfer Between Accounts</div>
+                                <div class="story-text">As a customer, I want to transfer funds between my accounts so that I can manage my money efficiently.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Account Management</div>
+                                <div class="story-label">Story 2: View Transaction History</div>
+                                <div class="story-text">As a customer, I want to view my transaction history for the last 90 days so that I can track my spending.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Account Management</div>
+                                <div class="story-label">Story 3: Download Account Statement</div>
+                                <div class="story-text">As a customer, I want to download my account statements as PDF for record keeping and tax purposes so that I have official documentation.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <!-- Payments & Transfers -->
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Payments & Transfers</div>
+                                <div class="story-label">Story 4: Bill Payment</div>
+                                <div class="story-text">As a customer, I want to pay my bills directly from my account so that I can manage my monthly obligations efficiently without visiting a bank.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Payments & Transfers</div>
+                                <div class="story-label">Story 5: International Money Transfer</div>
+                                <div class="story-text">As a customer, I want to send money internationally with competitive exchange rates so that I can support my family abroad.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <!-- Security -->
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Security</div>
+                                <div class="story-label">Story 6: Set Transaction Limits</div>
+                                <div class="story-text">As a customer, I want to set daily transaction limits so that I can control my spending and protect against unauthorized transactions.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Security</div>
+                                <div class="story-label">Story 7: Enable Two-Factor Authentication</div>
+                                <div class="story-text">As a customer, I want to enable two-factor authentication for my account so that my financial information is protected from unauthorized access.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <!-- Savings & Investments -->
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Savings & Investments</div>
+                                <div class="story-label">Story 8: Open Savings Account</div>
+                                <div class="story-text">As a customer, I want to open a savings account with competitive interest rates so that I can grow my savings passively.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+
+                        <div class="user-story-item">
+                            <input type="checkbox" class="story-checkbox" onchange="updateSelectedCount()">
+                            <div class="story-content" style="flex: 1;">
+                                <div class="story-category">Savings & Investments</div>
+                                <div class="story-label">Story 9: Set Up Automatic Transfers</div>
+                                <div class="story-text">As a customer, I want to set up automatic monthly transfers to my savings account so that I can build savings consistently without manual effort.</div>
+                            </div>
+                            <button class="story-copy-btn" onclick="copySingleStory(this)">📋 Copy</button>
+                        </div>
+                    </div>
+
+                    <!-- Copy Buttons -->
+                    <div class="copy-buttons-group" style="margin-top: 15px;">
+                        <button class="copy-samples-btn" onclick="copySelectedStories()">
+                            📋 Copy Selected Stories
+                        </button>
+                        <button class="copy-samples-btn secondary" onclick="copyAllStories()">
+                            📚 Copy All Stories
+                        </button>
+                        <button class="copy-samples-btn" onclick="generateTestCasesFromSelection()" style="background-color: #4CAF50; margin-left: 10px;">
+                            🚀 Generate Test Cases
+                        </button>
+                    </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Panel: Embedded Chat + Action Buttons -->
+            <div class="right-panel">
+                <div class="embedded-chat">
+                    <div class="chat-header">
+                        <div class="chat-header-icon">🤖</div>
+                        <div>
+                            <div class="chat-header-title">02_TestCase_Generator_Flow</div>
+                            <div class="chat-header-subtitle">
+                                <span class="chat-status-dot"></span>
+                                We'll reply as soon as we can
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-welcome">Start a conversation — paste your user stories and the AI will generate test cases.</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea id="langflow-input" rows="2"
+                            placeholder="Type your user story here… (Enter to send, Shift+Enter for new line)"></textarea>
+                        <button class="chat-send-btn" id="send-btn" onclick="sendChatMessage()">Send ▶</button>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn copy-btn" onclick="copyFromChat()">📋 Copy</button>
+                    <button class="btn clear-btn" onclick="clearChat()">🗑️ Clear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <div class="modal-overlay" id="clear-modal">
+        <div class="modal-box">
+            <h3>🗑️ Clear Chat?</h3>
+            <p>Are you sure you want to clear all generated test cases? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="cancelClearChat()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmClearChat()">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Options Modal -->
+    <div class="copy-options-modal" id="copy-options-modal">
+        <div class="copy-options-box">
+            <h3>📋 Copy Test Cases</h3>
+            
+            <div class="output-stats" id="output-stats">
+                <strong>Content:</strong> <span id="content-stats">0 characters, 0 test cases</span>
+            </div>
+
+            <div class="copy-option-item" onclick="copyAsPlainText()">
+                <div class="copy-option-label">📄 Plain Text</div>
+                <div class="copy-option-description">Copy as simple text format, easy to paste anywhere</div>
+            </div>
+
+            <div class="copy-option-item" onclick="copyAsFormatted()">
+                <div class="copy-option-label">✨ Formatted Text</div>
+                <div class="copy-option-description">Copy with markdown formatting for better readability</div>
+            </div>
+
+            <div class="copy-option-item" onclick="copyAsJSON()">
+                <div class="copy-option-label">{ } JSON</div>
+                <div class="copy-option-description">Copy as structured JSON for programmatic use</div>
+            </div>
+
+            <div class="copy-option-item" onclick="downloadAsFile()">
+                <div class="copy-option-label">💾 Download File</div>
+                <div class="copy-option-description">Download test cases as a .txt file to your device</div>
+            </div>
+
+            <button class="copy-close-btn" onclick="closeCopyModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const FLOW_ID = '4bffc4eb-a41e-4740-8830-6abb88f288b4';
+        const HOST_URL = 'http://localhost:7860';
+        const API_KEY = 'sk-2sivlwWMtl4vA9V7iThsXAn3K7PP3N0vVgfkl-XVomE';
+        let chatSessionId = 'session_' + Date.now();
+        let isSending = false;
+
+        // Collapsible Section Toggle
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) section.classList.toggle('collapsed');
+        }
+
+        // ── Embedded Chat ──────────────────────────────────────────────
+
+        async function sendChatMessage() {
+            if (isSending) return;
+            const input = document.getElementById('langflow-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            isSending = true;
+            document.getElementById('send-btn').disabled = true;
+
+            appendChatMessage('user', message, 'You');
+            input.value = '';
+            input.style.height = 'auto';
+
+            const loadingEl = appendChatLoading();
+
+            try {
+                const res = await fetch(`${HOST_URL}/api/v1/run/${FLOW_ID}?session_id=${chatSessionId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'x-api-key': API_KEY },
+                    body: JSON.stringify({
+                        input_value: message,
+                        output_type: 'chat',
+                        input_type: 'chat',
+                        session_id: chatSessionId
+                    })
+                });
+
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                loadingEl.remove();
+                appendChatMessage('bot', extractChatResponse(data), '02_TestCase_Generator_Flow');
+            } catch (err) {
+                loadingEl.remove();
+                appendChatMessage('error',
+                    'Could not reach Langflow at ' + HOST_URL + '. Make sure the server is running.',
+                    'Error');
+            }
+
+            isSending = false;
+            document.getElementById('send-btn').disabled = false;
+        }
+
+        function extractChatResponse(data) {
+            try {
+                const out = data?.outputs?.[0]?.outputs?.[0];
+                if (out?.results?.message) {
+                    const m = out.results.message;
+                    return typeof m === 'string' ? m : (m.text || m.message || JSON.stringify(m));
+                }
+                if (out?.artifacts?.message) return out.artifacts.message;
+                if (out?.messages?.[0])       return out.messages[0].message || out.messages[0].text || '';
+            } catch (_) {}
+            return JSON.stringify(data, null, 2);
+        }
+
+        function appendChatMessage(type, text, sender) {
+            const messages = document.getElementById('chat-messages');
+            const welcome = messages.querySelector('.chat-welcome');
+            if (welcome) welcome.remove();
+
+            const wrap = document.createElement('div');
+            wrap.className = 'chat-message ' + type;
+
+            const senderEl = document.createElement('div');
+            senderEl.className = 'chat-sender-name';
+            senderEl.textContent = sender;
+
+            const content = document.createElement('div');
+            content.className = 'chat-message-content';
+            content.textContent = text;
+
+            wrap.appendChild(senderEl);
+            wrap.appendChild(content);
+            messages.appendChild(wrap);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function appendChatLoading() {
+            const messages = document.getElementById('chat-messages');
+            const wrap = document.createElement('div');
+            wrap.className = 'chat-message bot';
+            wrap.innerHTML = '<div class="chat-sender-name">02_TestCase_Generator_Flow</div>'
+                           + '<div class="chat-loading"><span></span><span></span><span></span></div>';
+            messages.appendChild(wrap);
+            messages.scrollTop = messages.scrollHeight;
+            return wrap;
+        }
+
+        // Enter = send, Shift+Enter = newline; auto-resize textarea
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('langflow-input');
+            if (!input) return;
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+            });
+            input.addEventListener('input', () => {
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+            });
+        });
+
+        // Update selected count
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.story-checkbox');
+            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            document.getElementById('selected-count').textContent = `${selectedCount} selected`;
+            
+            // Update select-all checkbox state
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
+            selectAllCheckbox.checked = selectedCount === checkboxes.length;
+            selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < checkboxes.length;
+        }
+
+        // Toggle all stories
+        function toggleAllStories(checkbox) {
+            const checkboxes = document.querySelectorAll('.story-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateSelectedCount();
+        }
+
+        // Get story text from checkbox
+        function getStoryFromCheckbox(checkbox) {
+            const storyItem = checkbox.closest('.user-story-item');
+            const storyContent = storyItem ? storyItem.querySelector('.story-content') : null;
+            if (!storyContent) return '';
+            const label = storyContent.querySelector('.story-label').textContent;
+            const text = storyContent.querySelector('.story-text').textContent;
+            return `${label}\n${text}`;
+        }
+
+        // Copy selected stories
+        function copySelectedStories() {
+            const checkboxes = document.querySelectorAll('.story-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                showToast('⚠️ Please select at least one story to copy!', 'error');
+                return;
+            }
+
+            const stories = Array.from(checkboxes)
+                .map(cb => getStoryFromCheckbox(cb))
+                .join('\n\n---\n\n');
+            
+            navigator.clipboard.writeText(stories).then(() => {
+                showToast(`✓ ${checkboxes.length} story(ies) copied to clipboard!`, 'success');
+            }).catch(() => {
+                showToast('✗ Failed to copy. Please try again.', 'error');
+            });
+        }
+
+        // Copy all stories
+        function copyAllStories() {
+            const stories = [
+                "Story 1: Fund Transfer Between Accounts\nAs a customer, I want to transfer funds between my accounts so that I can manage my money efficiently.",
+                "Story 2: View Transaction History\nAs a customer, I want to view my transaction history for the last 90 days so that I can track my spending.",
+                "Story 3: Download Account Statement\nAs a customer, I want to download my account statements as PDF for record keeping and tax purposes so that I have official documentation.",
+                "Story 4: Bill Payment\nAs a customer, I want to pay my bills directly from my account so that I can manage my monthly obligations efficiently without visiting a bank.",
+                "Story 5: International Money Transfer\nAs a customer, I want to send money internationally with competitive exchange rates so that I can support my family abroad.",
+                "Story 6: Set Transaction Limits\nAs a customer, I want to set daily transaction limits so that I can control my spending and protect against unauthorized transactions.",
+                "Story 7: Enable Two-Factor Authentication\nAs a customer, I want to enable two-factor authentication for my account so that my financial information is protected from unauthorized access.",
+                "Story 8: Open Savings Account\nAs a customer, I want to open a savings account with competitive interest rates so that I can grow my savings passively.",
+                "Story 9: Set Up Automatic Transfers\nAs a customer, I want to set up automatic monthly transfers to my savings account so that I can build savings consistently without manual effort."
+            ];
+
+            const allStories = stories.join('\n\n---\n\n');
+            
+            navigator.clipboard.writeText(allStories).then(() => {
+                showToast(`✓ All 9 stories copied to clipboard!`, 'success');
+            }).catch(() => {
+                showToast('✗ Failed to copy. Please try again.', 'error');
+            });
+        }
+
+        // Close copy options modal
+        function closeCopyModal() {
+            document.getElementById('copy-options-modal').classList.remove('show');
+        }
+
+        function copyAsPlainText()  { closeCopyModal(); }
+        function copyAsFormatted()  { closeCopyModal(); }
+        function copyAsJSON()       { closeCopyModal(); }
+        function downloadAsFile()   { closeCopyModal(); }
+
+        // Clear Chat - Show Modal
+        function clearChat() {
+            const modal = document.getElementById('clear-modal');
+            modal.classList.add('show');
+        }
+
+        // Cancel Clear Chat
+        function cancelClearChat() {
+            const modal = document.getElementById('clear-modal');
+            modal.classList.remove('show');
+            showToast('ℹ️ Chat clear cancelled', 'info');
+        }
+
+        // Confirm Clear Chat - wipe messages and start a new session
+        function confirmClearChat() {
+            document.getElementById('clear-modal').classList.remove('show');
+            const messages = document.getElementById('chat-messages');
+            if (messages) {
+                messages.innerHTML = '<div class="chat-welcome">Start a conversation — paste your user stories and the AI will generate test cases.</div>';
+            }
+            chatSessionId = 'session_' + Date.now();
+            showToast('✓ Chat cleared! Ready for new test cases.', 'success');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('clear-modal');
+            const copyModal = document.getElementById('copy-options-modal');
+            
+            // Clear modal - click outside to close
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+
+            // Copy modal - click outside to close
+            copyModal.addEventListener('click', function(event) {
+                if (event.target === copyModal) {
+                    copyModal.classList.remove('show');
+                }
+            });
+
+            // Close modals with Escape key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    modal.classList.remove('show');
+                    copyModal.classList.remove('show');
+                }
+            });
+        });
+
+        // Show Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+
+        // Copy Single Story to Clipboard
+        async function copySingleStory(button) {
+            const storyItem = button.closest('.user-story-item');
+            const story = getStoryFromCheckbox(storyItem.querySelector('.story-checkbox'));
+            
+            try {
+                await navigator.clipboard.writeText(story);
+                showToast('✓ Story copied to clipboard! Paste it in the Langflow chat.', 'success');
+            } catch (error) {
+                console.error('Copy error:', error);
+                showToast('✗ Failed to copy story.', 'error');
+            }
+        }
+
+        // Generate Test Cases - send selected stories directly into the embedded chat
+        async function generateTestCasesFromSelection() {
+            const checkboxes = document.querySelectorAll('.story-checkbox:checked');
+            if (checkboxes.length === 0) {
+                showToast('⚠️ Please select at least one story to generate test cases!', 'error');
+                return;
+            }
+            const stories = Array.from(checkboxes)
+                .map(cb => getStoryFromCheckbox(cb))
+                .join('\n\n');
+            const input = document.getElementById('langflow-input');
+            if (input) {
+                input.value = stories;
+                input.style.height = 'auto';
+                input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+                input.focus();
+                showToast(`✓ ${checkboxes.length} story(ies) loaded into chat. Press Send to generate!`, 'success');
+            }
+        }
+
+        // Copy all bot responses from the embedded chat to clipboard
+        function copyFromChat() {
+            const messages = document.querySelectorAll('#chat-messages .chat-message');
+            if (!messages.length) {
+                showToast('ℹ️ No messages to copy yet.', 'info');
+                return;
+            }
+            let text = '';
+            messages.forEach(msg => {
+                const sender  = msg.querySelector('.chat-sender-name')?.textContent || '';
+                const content = msg.querySelector('.chat-message-content')?.textContent || '';
+                if (content) text += sender + ':\n' + content + '\n\n';
+            });
+            navigator.clipboard.writeText(text.trim())
+                .then(() => showToast('✓ Chat copied to clipboard!', 'success'))
+                .catch(() => showToast('✗ Failed to copy.', 'error'));
+        }
+    </script>
+</body>
+</html>

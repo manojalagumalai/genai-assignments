@@ -1,0 +1,122 @@
+{
+  "info": {
+    "_postman_id": "766448be-a6c2-4b1d-b93f-a71caf29345e",
+    "name": "jiraTest Copy",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48163414",
+    "_collection_link": "https://go.postman.co/collection/48163414-766448be-a6c2-4b1d-b93f-a71caf29345e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Single story",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"jql\": \"key = \\\"QEAG-22\\\"\",\r\n    \"fields\": [\r\n        \"key\",\r\n        \"summary\",\r\n        \"description\",\r\n        \"status\",\r\n        \"reporter\",\r\n        \"Acceptance criteria\"\r\n       \r\n    ],\r\n    \"maxResults\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://grssankarmca94.atlassian.net/rest/api/3/search/jql",
+          "protocol": "https",
+          "host": [
+            "grssankarmca94",
+            "atlassian",
+            "net"
+          ],
+          "path": [
+            "rest",
+            "api",
+            "3",
+            "search",
+            "jql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Multiple stories",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"jql\": \"project = QEAGLE AND issuetype = Story\",\r\n  \"fields\": [\r\n    \"key\",\r\n    \"summary\",\r\n    \"description\",\r\n    \"status\",\r\n    \"reporter\"\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://grssankarmca94.atlassian.net/rest/api/3/search",
+          "protocol": "https",
+          "host": [
+            "grssankarmca94",
+            "atlassian",
+            "net"
+          ],
+          "path": [
+            "rest",
+            "api",
+            "3",
+            "search"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "grssankarmca94@gmail.com",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "ATATT3xFfGF0aZ8SPZcKZC_zVGt-NAkAsD-J3OqA2En7paLpK_W2gq4QjlKRV7YZaaZft9-KLgi77DvvA1baStW7GXAXC63DSpg1oHfChjmaW9ufhKKgCZUlTymIXq5yK1haTF_d6I4SL-3OUsgYX0q20ldvOALf62dge_6RMJQKSBl3_MlN0Bg=C04B3A36",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

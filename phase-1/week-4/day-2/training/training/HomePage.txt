@@ -1,0 +1,55 @@
+
+===HTML===
+
+<a style="color: black;" href="/crmsfa/control/main?externalLoginKey=EL601288709152">
+CRM/SFA
+</a>
+<input class="decorativeSubmit" style="width:65px; margin-left:1px;" type="submit" value="Logout">
+
+===JAVA===
+
+
+/**
+ * Page object representing the Home page after login.
+ * Provides methods to verify the home page and navigate to other pages.
+ * @author Auto-generated
+ */
+package com.leaftaps.pages;
+
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+
+public class HomePage extends ProjectSpecificMethods {
+
+	/**
+	 * Verifies that the Home page is displayed.
+	 * @return The current HomePage instance
+	 */
+	public HomePage verifyHomePage() {
+		verifyDisplayed(locateElement(Locators.LINK_TEXT, "CRM/SFA"));
+		reportStep("Homepage is loaded", "pass");
+		return this;
+	}
+
+	/**
+	 * Clicks the CRM/SFA link to navigate to MyHomePage.
+	 * @return A new MyHomePage instance
+	 */
+	public MyHomePage clickCrmsfaLink() {
+		click(locateElement(Locators.LINK_TEXT, "CRM/SFA"));
+		reportStep("CRM/SFA link is clicked", "pass");
+		return new MyHomePage();
+	}
+
+	/**
+	 * Clicks the Logout button to log out of the application.
+	 * @return A new LoginPage instance
+	 */
+	public LoginPage clickLogOut() {
+		click(locateElement(Locators.CLASS_NAME, "decorativeSubmit"));
+		reportStep("Logout button is clicked", "pass");
+		return new LoginPage();
+	}
+
+}

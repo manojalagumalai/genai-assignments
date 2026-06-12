@@ -1,0 +1,37 @@
+ Visualization: Display AI response content in a readable format
+const response = pm.response.json();
+const content = response?.choices?.[0]?.message?.content || "No content returned.";
+
+// Detect if content contains a code block
+const codeBlockMatch = content.match(/```(\w+)?\n([\s\S]*?)```/);
+let displayContent;
+
+if (codeBlockMatch) {
+    const lang = codeBlockMatch[1] || "code";
+    const code = codeBlockMatch[2];
+    displayContent = `<pre style="background:#1e1e1e;color:#d4d4d4;padding:16px;border-radius:8px;overflow:auto;font-family:monospace;font-size:13px;line-height:1.5;">${code.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</pre>`;
+} else {
+    displayContent = `<p style="font-family:sans-serif;font-size:14px;line-height:1.6;color:#333;">${content.replace(/\n/g, "<br>")}</p>`;
+}
+
+const template = `
+<html>
+<head>
+  <style>
+    body { margin: 0; padding: 16px; background: #f5f5f5; }
+    .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h3 { font-family: sans-serif; color: #444; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    .model-info { font-family: sans-serif; font-size: 12px; color: #888; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3>AI Response</h3>
+    <div class="model-info">Model: ${response.model || "N/A"} &nbsp;|&nbsp; ID: ${response.id || "N/A"}</div>
+    ${displayContent}
+  </div>
+</body>
+</html>
+`;
+
+pm.visualizer.set(template);

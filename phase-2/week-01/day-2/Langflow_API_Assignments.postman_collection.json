@@ -1,0 +1,107 @@
+{
+  "info": {
+    "_postman_id": "b2593ab4-3ea3-4f1b-8664-e3e5767333a5",
+    "name": "Langflow_API_Assignments",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "41939723",
+    "_collection_link": "https://go.postman.co/collection/41939723-b2593ab4-3ea3-4f1b-8664-e3e5767333a5?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "http://localhost:7860/api/v1/run/4e411691-8e1e-4fc8-bb30-6ed6e09b5676?stream=false ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "sk-2sivlwWMtl4vA9V7iThsXAn3K7PP3N0vVgfkl-XVomE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\t\t           \"output_type\": \"text\",\r\n\t\t           \"input_type\": \"text\",\r\n\t\t           \"input_value\": \"hello world!\",\r\n\t\t           \"tweaks\": {\r\n\t\t             \"APIRequest-4L2FL\": {\r\n\t\t               \"body\": [\r\n\t\t                 {\r\n\t\t                   \"key\": \"jql\",\r\n\t\t                   \"value\": \"key = \\\\\\\"SCRUM-1\\\\\\\"\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"fields\",\r\n\t\t                   \"value\": \"[\\\"key\\\",\\\"summary\\\",\\\"description\\\",\\\"status\\\",\\\"reporter\\\"]\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"maxResults\",\r\n\t\t                   \"value\": \"1\"\r\n\t\t                 }\r\n\t\t               ],\r\n\t\t               \"headers\": [\r\n\t\t                 {\r\n\t\t                   \"key\": \"Authorization\",\r\n\t\t                   \"value\": \"Basic YW1hbm9qa3VtYXJzQGdtYWlsLmNvbTpBVEFUVDN4RmZHRjBicWQtWDIwRTNVVkM0Xy15dXc0RWJydTVKUFpuZE9QYnBCOFB6RUZadzFyRVBJMUVHTy1mTlFZMWxiODlhdHhfU2RaWnU1OFUwSm9JcjdVU2lDWVU2OTFSbmVKZmVjdk8yWDJVYllWMjVyN1NOWnlKeVFIb2N0NWNodUJuX3hsOEc1N3BrazY3X3pOaFJRZjF6MUNsaE1abGZ3MkFnNy1KQ1BjTmFhQXNMWDA9QzFDODRDN0I=\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"Content-Type\",\r\n\t\t                   \"value\": \"application/json\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"Accept\",\r\n\t\t                   \"value\": \"application/json\"\r\n\t\t                 }\r\n\t\t               ]\r\n\t\t             }\r\n\t\t           }\r\n\t\t         }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:7860/api/v1/run/4e411691-8e1e-4fc8-bb30-6ed6e09b5676",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "7860",
+          "path": [
+            "api",
+            "v1",
+            "run",
+            "4e411691-8e1e-4fc8-bb30-6ed6e09b5676"
+          ],
+          "query": [
+            {
+              "key": "stream",
+              "value": "false ",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Generated from cURL: curl --request POST \\\r\n     --url 'http://localhost:7860/api/v1/run/4e411691-8e1e-4fc8-bb30-6ed6e09b5676?stream=false' \\\r\n     --header 'Content-Type: application/json' \\\r\n     --header \"x-api-key: YOUR_API_KEY_HERE\" \\ \r\n     --data '{\r\n\t\t           \"output_type\": \"text\",\r\n\t\t           \"input_type\": \"text\",\r\n\t\t           \"input_value\": \"hello world!\",\r\n\t\t           \"tweaks\": {\r\n\t\t             \"APIRequest-4L2FL\": {\r\n\t\t               \"body\": [\r\n\t\t                 {\r\n\t\t                   \"key\": \"jql\",\r\n\t\t                   \"value\": \"key = \\\\\\\"SCRUM-1\\\\\\\"\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"fields\",\r\n\t\t                   \"value\": \"[\\\"key\\\",\\\"summary\\\",\\\"description\\\",\\\"status\\\",\\\"reporter\\\"]\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"maxResults\",\r\n\t\t                   \"value\": \"1\"\r\n\t\t                 }\r\n\t\t               ],\r\n\t\t               \"headers\": [\r\n\t\t                 {\r\n\t\t                   \"key\": \"Authorization\",\r\n\t\t                   \"value\": \"Basic YW1hbm9qa3VtYXJzQGdtYWlsLmNvbTpBVEFUVDN4RmZHRjBicWQtWDIwRTNVVkM0Xy15dXc0RWJydTVKUFpuZE9QYnBCOFB6RUZadzFyRVBJMUVHTy1mTlFZMWxiODlhdHhfU2RaWnU1OFUwSm9JcjdVU2lDWVU2OTFSbmVKZmVjdk8yWDJVYllWMjVyN1NOWnlKeVFIb2N0NWNodUJuX3hsOEc1N3BrazY3X3pOaFJRZjF6MUNsaE1abGZ3MkFnNy1KQ1BjTmFhQXNMWDA9QzFDODRDN0I=\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"Content-Type\",\r\n\t\t                   \"value\": \"application/json\"\r\n\t\t                 },\r\n\t\t                 {\r\n\t\t                   \"key\": \"Accept\",\r\n\t\t                   \"value\": \"application/json\"\r\n\t\t                 }\r\n\t\t               ]\r\n\t\t             }\r\n\t\t           },\r\n\t\t           \"session_id\": \"YOUR_SESSION_ID_HERE\"\r\n\t\t         }'"
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:7860/api/v1/run/ae93ee94-ff56-4ff9-8156-5d53c8c76200?stream=false ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "sk-2sivlwWMtl4vA9V7iThsXAn3K7PP3N0vVgfkl-XVomE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\t\t           \"output_type\": \"text\",\r\n\t\t           \"input_type\": \"text\",\r\n\t\t           \"input_value\": \"hello world!\",\r\n\t\t           \"tweaks\": {\r\n\t\t             \"GroqModel-bGVye\": {\r\n\t\t               \"api_key\": \"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\",\r\n\t\t               \"max_tokens\": 4096,\r\n\t\t               \"model_name\": \"llama-3.1-8b-instant\"\r\n\t\t             }\r\n\t\t           }\r\n\t\t         }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:7860/api/v1/run/ae93ee94-ff56-4ff9-8156-5d53c8c76200",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "7860",
+          "path": [
+            "api",
+            "v1",
+            "run",
+            "ae93ee94-ff56-4ff9-8156-5d53c8c76200"
+          ],
+          "query": [
+            {
+              "key": "stream",
+              "value": "false ",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Generated from cURL: curl --request POST \\\r\n     --url 'http://localhost:7860/api/v1/run/ae93ee94-ff56-4ff9-8156-5d53c8c76200?stream=false' \\\r\n     --header 'Content-Type: application/json' \\\r\n     --header \"x-api-key: YOUR_API_KEY_HERE\" \\ \r\n     --data '{\r\n\t\t           \"output_type\": \"text\",\r\n\t\t           \"input_type\": \"text\",\r\n\t\t           \"input_value\": \"hello world!\",\r\n\t\t           \"tweaks\": {\r\n\t\t             \"GroqModel-bGVye\": {\r\n\t\t               \"api_key\": \"Groq_LLM_API_Key\",\r\n\t\t               \"max_tokens\": 0,\r\n\t\t               \"model_name\": \"llama-3.1-8b-instant\"\r\n\t\t             }\r\n\t\t           },\r\n\t\t           \"session_id\": \"YOUR_SESSION_ID_HERE\"\r\n\t\t         }'"
+      },
+      "response": []
+    }
+  ]
+}

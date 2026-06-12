@@ -1,0 +1,107 @@
+{
+  "info": {
+    "_postman_id": "a94ab100-43f4-4132-b96a-76bb83982988",
+    "name": "Langflow API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "41939723",
+    "_collection_link": "https://go.postman.co/collection/41939723-a94ab100-43f4-4132-b96a-76bb83982988?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "http://localhost:7860/api/v1/run/4bffc4eb-a41e-4740-8830-6abb88f288b4?stream=false ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "sk-2sivlwWMtl4vA9V7iThsXAn3K7PP3N0vVgfkl-XVomE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\t\t           \"output_type\": \"chat\",\r\n\t\t           \"input_type\": \"chat\",\r\n\t\t           \"input_value\": \"Generate Fund Transfer Testcases\"\r\n\t\t         }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:7860/api/v1/run/4bffc4eb-a41e-4740-8830-6abb88f288b4",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "7860",
+          "path": [
+            "api",
+            "v1",
+            "run",
+            "4bffc4eb-a41e-4740-8830-6abb88f288b4"
+          ],
+          "query": [
+            {
+              "key": "stream",
+              "value": "false ",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Generated from cURL: curl --request POST \\\r\n     --url 'http://localhost:7860/api/v1/run/4bffc4eb-a41e-4740-8830-6abb88f288b4?stream=false' \\\r\n     --header 'Content-Type: application/json' \\\r\n     --header \"x-api-key: YOUR_API_KEY_HERE\" \\ \r\n     --data '{\r\n\t\t           \"output_type\": \"chat\",\r\n\t\t           \"input_type\": \"chat\",\r\n\t\t           \"input_value\": \"hello world!\",\r\n\t\t           \"session_id\": \"YOUR_SESSION_ID_HERE\"\r\n\t\t         }'"
+      },
+      "response": []
+    },
+    {
+      "name": "http://localhost:7860/api/v1/run/4bffc4eb-a41e-4740-8830-6abb88f288b4?stream=false ",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "x-api-key",
+            "value": "sk-2sivlwWMtl4vA9V7iThsXAn3K7PP3N0vVgfkl-XVomE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\t\t           \"output_type\": \"chat\",\r\n\t\t           \"input_type\": \"chat\",\r\n\t\t           \"input_value\": \"Create Testcases for Bank Transfer\",\r\n\t\t           \"tweaks\": {\r\n\t\t             \"GroqModel-iYDhj\": {\r\n\t\t               \"api_key\": \"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\",\r\n\t\t               \"max_tokens\": 4096,\r\n\t\t               \"model_name\": \"llama-3.1-8b-instant\",\r\n\t\t               \"temperature\": 0.1\r\n\t\t             }\r\n\t\t           }\r\n\t\t         }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:7860/api/v1/run/4bffc4eb-a41e-4740-8830-6abb88f288b4",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "7860",
+          "path": [
+            "api",
+            "v1",
+            "run",
+            "4bffc4eb-a41e-4740-8830-6abb88f288b4"
+          ],
+          "query": [
+            {
+              "key": "stream",
+              "value": "false ",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Generated from cURL: curl --request POST \\\r\n     --url 'http://localhost:7860/api/v1/run/4bffc4eb-a41e-4740-8830-6abb88f288b4?stream=false' \\\r\n     --header 'Content-Type: application/json' \\\r\n     --header \"x-api-key: YOUR_API_KEY_HERE\" \\ \r\n     --data '{\r\n\t\t           \"output_type\": \"chat\",\r\n\t\t           \"input_type\": \"chat\",\r\n\t\t           \"input_value\": \"hello world!\",\r\n\t\t           \"tweaks\": {\r\n\t\t             \"GroqModel-iYDhj\": {\r\n\t\t               \"api_key\": \"Groq_LLM_API_Key\",\r\n\t\t               \"max_tokens\": 4096,\r\n\t\t               \"model_name\": \"llama-3.1-8b-instant\",\r\n\t\t               \"temperature\": 0.1\r\n\t\t             }\r\n\t\t           },\r\n\t\t           \"session_id\": \"YOUR_SESSION_ID_HERE\"\r\n\t\t         }'"
+      },
+      "response": []
+    }
+  ]
+}

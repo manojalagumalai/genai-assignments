@@ -1,0 +1,117 @@
+===HTML===
+
+<input class="XdijitInputField dijitInputFieldValidationNormal" type="text" autocomplete="off" name="ComboBox_productId" dojoattachevent="onkeypress, onkeyup, onfocus, onblur, compositionend" dojoattachpoint="textbox,focusNode" id="ComboBox_productId" tabindex="1" size="15" maxlength="50" wairole="combobox" role="wairole:combobox" value="" valuenow="" invalid="false" disabled="false">
+<input id="quantity" name="quantity" type="text" size="10" maxlength="" class="inputBox" value="1" onchange="" tabindex="2">
+<a class="subMenuButton" href="javascript:document.cartform.submit();" id="ext-gen173">Update</a>
+
+===JAVA===
+package com.leaftaps.pages;
+
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+/**
+ * Page object representing the Order Entry Header page.
+ * Provides methods to interact with the order entry fields and actions.
+ * @author Auto-generated
+ */
+public class OrderEntryHeaderPage extends ProjectSpecificMethods {
+
+    /**
+     * Selects the store from the dropdown.
+     * @param storeName The name of the store to select
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage selectStore(String storeName) {
+        selectDropDownUsingText(locateElement("productStoreId"), storeName);
+        reportStep(storeName + " store is selected successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Selects the sales channel from the dropdown.
+     * @param channelName The name of the sales channel to select
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage selectSalesChannel(String channelName) {
+        selectDropDownUsingText(locateElement("salesChannelEnumId"), channelName);
+        reportStep(channelName + " sales channel is selected successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Enters the order name.
+     * @param orderName The order name to enter
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage enterOrderName(String orderName) {
+        clearAndType(locateElement("orderName"), orderName);
+        reportStep(orderName + " order name is entered successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Enters the customer name.
+     * @param customerName The customer name to enter
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage enterCustomerName(String customerName) {
+        clearAndType(locateElement("ComboBox_partyId"), customerName);
+        reportStep(customerName + " customer name is entered successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Enters the PO number.
+     * @param poNumber The PO number to enter
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage enterPONumber(String poNumber) {
+        clearAndType(locateElement("poNumber"), poNumber);
+        reportStep(poNumber + " PO number is entered successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Selects the tracking code from the dropdown.
+     * @param trackingCode The tracking code to select
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage selectTrackingCode(String trackingCode) {
+        selectDropDownUsingText(locateElement("trackingCodeId"), trackingCode);
+        reportStep(trackingCode + " tracking code is selected successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Enters the commission representative name.
+     * @param salesRep The sales representative name to enter
+     * @return The current OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage enterCommissionRep(String salesRep) {
+        clearAndType(locateElement("salesRepPartyId"), salesRep);
+        reportStep(salesRep + " commission representative is entered successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Clicks the Update button to submit the order.
+     * @return A new OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage clickUpdate() {
+        click(Locators.LINK_TEXT, "Update");
+        reportStep("Update button is clicked successfully", "pass");
+        return this;
+    }
+
+    /**
+     * Clicks the Cancel Order button to cancel the order.
+     * @return A new OrderEntryHeaderPage instance
+     */
+    public OrderEntryHeaderPage clickCancelOrder() {
+        click(Locators.LINK_TEXT, "Cancel Order");
+        reportStep("Cancel Order button is clicked successfully", "pass");
+        return this;
+    }
+
+}

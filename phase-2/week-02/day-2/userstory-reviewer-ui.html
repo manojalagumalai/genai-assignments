@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Story Reviewer — Langflow AI</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:      #0d9488;
+      --teal-dk:   #0f766e;
+      --teal-lt:   #ccfbf1;
+      --indigo:    #4f46e5;
+      --indigo-lt: #e0e7ff;
+      --amber:     #d97706;
+      --amber-lt:  #fef3c7;
+      --red:       #dc2626;
+      --green:     #059669;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-100: #f1f5f9;
+      --white:     #ffffff;
+      --chat-w:    420px;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(150deg, #f0fdfa 0%, #f8fafc 55%, #eef2ff 100%);
+      color: var(--slate-900);
+      min-height: 100vh;
+      padding-right: calc(var(--chat-w) + 48px);
+    }
+
+    /* ─── Page layout ──────────────────────────────── */
+    .page-wrap { max-width: 800px; padding: 90px 32px 64px; }
+
+    .page-hero { margin-bottom: 36px; }
+    .badge {
+      display: inline-block;
+      background: var(--teal-lt);
+      color: var(--teal-dk);
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 999px; margin-bottom: 14px;
+    }
+    .page-hero h1 {
+      font-size: 2.15rem; line-height: 1.16;
+      letter-spacing: -.03em; margin-bottom: 14px;
+    }
+    .page-hero h1 span { color: var(--teal); }
+    .page-hero p {
+      font-size: 1.05rem; line-height: 1.7;
+      color: var(--slate-700); max-width: 640px;
+    }
+
+    /* ─── Cards ────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-300);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(15,23,42,.05);
+      margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 12px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--slate-100);
+      background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+      border-radius: 18px 18px 0 0;
+    }
+    .card-header h2 { font-size: 1rem; font-weight: 700; }
+    .card-header p { font-size: .87rem; color: var(--slate-500); margin-top: 3px; }
+    .card-body { padding: 20px 24px; }
+
+    /* How-to steps */
+    .steps { list-style: none; counter-reset: step; }
+    .steps li {
+      counter-increment: step;
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--slate-100);
+    }
+    .steps li:last-child { border-bottom: none; }
+    .steps li::before {
+      content: counter(step);
+      min-width: 28px; height: 28px;
+      background: var(--teal); color: var(--white);
+      font-size: .8rem; font-weight: 700; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .steps li p { font-size: .95rem; line-height: 1.55; color: var(--slate-700); }
+    .steps li strong { color: var(--slate-900); }
+
+    /* Input mode toggle pills */
+    .mode-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .mode-pill {
+      cursor: pointer; border: 1.5px solid var(--slate-300);
+      background: var(--white); color: var(--slate-700);
+      border-radius: 999px; padding: 7px 16px;
+      font-size: .85rem; font-weight: 600;
+      transition: border-color .12s, background .12s, color .12s;
+    }
+    .mode-pill.active {
+      background: var(--teal); color: var(--white);
+      border-color: var(--teal);
+    }
+
+    /* Sample text block */
+    .sample-text {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: .87rem; line-height: 1.7;
+      color: var(--slate-700); white-space: pre-wrap;
+      background: var(--slate-100); border: 1px solid var(--slate-300);
+      border-radius: 12px; padding: 18px 20px;
+      max-height: 340px; overflow-y: auto;
+    }
+
+    /* Buttons */
+    .btn {
+      cursor: pointer; border: none; border-radius: 999px;
+      padding: 10px 18px; font-size: .88rem; font-weight: 600;
+      white-space: nowrap;
+      transition: transform .12s, box-shadow .12s, background .12s;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+    .btn:active { transform: none; }
+    .btn-primary   { background: var(--teal); color: var(--white); }
+    .btn-primary:hover { background: var(--teal-dk); }
+    .btn-secondary { background: var(--indigo); color: var(--white); }
+    .btn-secondary:hover { background: #4338ca; }
+    .btn-slate     { background: var(--slate-700); color: var(--white); }
+    .btn-outline   { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+    .btn-outline:hover { background: var(--teal-lt); }
+    .btn-ghost     { background: rgba(255,255,255,.18); color: var(--white); border: 1px solid rgba(255,255,255,.3); }
+    .btn-ghost:hover { background: rgba(255,255,255,.3); }
+    .btn-sm { padding: 7px 14px; font-size: .82rem; }
+    .btn-group { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ─── Chat toggle bar ──────────────────────────── */
+    .chat-toggle-bar {
+      position: fixed; top: 20px; right: 20px; z-index: 1100;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #btnToggleChat {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 999px;
+      font-size: .9rem; font-weight: 700;
+      border: none; cursor: pointer;
+      transition: transform .12s, box-shadow .12s;
+      box-shadow: 0 4px 18px rgba(13,148,136,.35);
+    }
+    #btnToggleChat:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(13,148,136,.45); }
+    #btnToggleChat.on  { background: var(--teal); color: var(--white); }
+    #btnToggleChat.off { background: var(--slate-700); color: var(--white); }
+    .toggle-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #86efac; box-shadow: 0 0 6px #86efac;
+      transition: background .2s;
+    }
+    #btnToggleChat.off .toggle-dot { background: #94a3b8; box-shadow: none; }
+
+    /* ─── Chat panel ───────────────────────────────── */
+    #chatPanel {
+      position: fixed; top: 68px; right: 20px;
+      width: var(--chat-w); height: calc(100vh - 88px);
+      background: var(--white);
+      border: 1px solid rgba(148,163,184,.3);
+      border-radius: 20px;
+      box-shadow: 0 24px 72px rgba(15,23,42,.15);
+      display: flex; flex-direction: column; overflow: hidden;
+      z-index: 1000;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+    #chatPanel.hidden {
+      opacity: 0; pointer-events: none; transform: translateY(-10px);
+    }
+
+    /* Chat header */
+    .chat-header {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--indigo) 100%);
+      color: var(--white); padding: 14px 16px 12px; flex-shrink: 0;
+    }
+    .chat-header-row {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 10px;
+    }
+    .chat-title { font-size: 1rem; font-weight: 700; line-height: 1.3; }
+    .chat-subtitle { font-size: .79rem; opacity: .88; margin-top: 3px; color: #99f6e4; }
+    .chat-header-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    /* Mode switcher inside chat */
+    .chat-mode-bar {
+      display: flex; gap: 0;
+      background: var(--slate-100);
+      border-bottom: 1px solid var(--slate-300);
+      flex-shrink: 0;
+    }
+    .chat-mode-tab {
+      flex: 1; cursor: pointer; border: none;
+      padding: 10px 8px; font-size: .82rem; font-weight: 600;
+      background: transparent; color: var(--slate-500);
+      transition: color .12s, background .12s;
+      border-bottom: 2px solid transparent;
+    }
+    .chat-mode-tab.active {
+      color: var(--teal); background: var(--white);
+      border-bottom-color: var(--teal);
+    }
+
+    /* Tip banner */
+    .chat-tip {
+      background: var(--teal-lt);
+      border-bottom: 1px solid #99f6e4;
+      padding: 9px 14px;
+      font-size: .81rem; color: var(--teal-dk); line-height: 1.5;
+      flex-shrink: 0;
+    }
+
+    /* Messages */
+    .chat-messages {
+      flex: 1; overflow-y: auto;
+      padding: 14px 14px 6px;
+      background: #f8fffe;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 5px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 999px; }
+
+    .msg-wrap { display: flex; flex-direction: column; }
+    .msg-wrap.user { align-items: flex-end; }
+    .msg-wrap.bot  { align-items: flex-start; }
+
+    .msg-bubble {
+      max-width: 92%; padding: 12px 16px; border-radius: 18px;
+      font-size: .89rem; line-height: 1.6; word-break: break-word;
+    }
+    .msg-wrap.user .msg-bubble {
+      background: linear-gradient(135deg, var(--teal), var(--indigo));
+      color: var(--white); border-bottom-right-radius: 5px;
+    }
+    .msg-wrap.bot .msg-bubble {
+      background: var(--white); border: 1px solid var(--slate-300);
+      color: var(--slate-900); border-bottom-left-radius: 5px;
+      max-width: 100%;
+    }
+    .msg-meta {
+      display: flex; align-items: center; gap: 8px; margin-top: 5px;
+    }
+    .msg-time { font-size: .74rem; color: var(--slate-500); }
+    .btn-copy-msg {
+      cursor: pointer; border: 1px solid var(--slate-300);
+      background: none; color: var(--slate-500);
+      font-size: .78rem; padding: 2px 8px; border-radius: 999px;
+      transition: background .12s, color .12s;
+    }
+    .btn-copy-msg:hover { background: var(--teal-lt); color: var(--teal-dk); }
+
+    /* Rendered HTML review */
+    .review-frame {
+      width: 100%; border: none; border-radius: 10px;
+      background: var(--white); min-height: 180px;
+      display: block; overflow: hidden;
+    }
+    .html-render {
+      font-size: .85rem; line-height: 1.65;
+    }
+    .html-render table {
+      width: 100%; border-collapse: collapse; font-size: .83rem; margin: 10px 0;
+    }
+    .html-render th {
+      background: var(--teal-lt); color: var(--teal-dk);
+      padding: 7px 10px; text-align: left; font-weight: 700;
+      border: 1px solid #99f6e4;
+    }
+    .html-render td {
+      padding: 6px 10px; border: 1px solid var(--slate-300); vertical-align: top;
+    }
+    .html-render tr:nth-child(even) td { background: #f0fdf9; }
+    .html-render h1,.html-render h2,.html-render h3 {
+      font-size: .95rem; font-weight: 700; margin: 12px 0 6px; color: var(--teal-dk);
+    }
+    .html-render ul,.html-render ol { padding-left: 18px; margin: 6px 0; }
+    .html-render li { margin-bottom: 4px; }
+    .html-render p { margin-bottom: 8px; }
+    .html-render strong { color: var(--slate-900); }
+
+    /* Typing indicator */
+    .typing {
+      display: flex; align-items: center; gap: 5px;
+      padding: 12px 16px; background: var(--white);
+      border: 1px solid var(--slate-300);
+      border-radius: 18px; border-bottom-left-radius: 5px;
+      max-width: 80px;
+    }
+    .typing span {
+      width: 8px; height: 8px; background: var(--slate-500);
+      border-radius: 50%; animation: bounce .9s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: .18s; }
+    .typing span:nth-child(3) { animation-delay: .36s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); }
+      30%  { transform: translateY(-6px); background: var(--teal); }
+    }
+
+    /* Input panel */
+    .chat-input-panel {
+      border-top: 1px solid var(--slate-300);
+      padding: 12px 14px 14px;
+      background: var(--white); flex-shrink: 0;
+    }
+    .input-section { display: none; }
+    .input-section.active { display: block; }
+    .chat-textarea {
+      width: 100%; min-height: 78px; max-height: 150px;
+      border: 1.5px solid var(--slate-300); border-radius: 14px;
+      padding: 11px 14px; resize: vertical; font-family: inherit;
+      font-size: .89rem; line-height: 1.55; color: var(--slate-900);
+      outline: none; transition: border-color .15s;
+    }
+    .chat-textarea:focus { border-color: var(--teal); }
+    .chat-textarea::placeholder { color: var(--slate-500); }
+    .jira-input-row { display: flex; gap: 8px; align-items: stretch; }
+    .jira-input {
+      flex: 1; border: 1.5px solid var(--slate-300); border-radius: 14px;
+      padding: 11px 14px; font-family: inherit; font-size: .9rem;
+      color: var(--slate-900); outline: none;
+      transition: border-color .15s;
+    }
+    .jira-input:focus { border-color: var(--teal); }
+    .jira-input::placeholder { color: var(--slate-500); }
+    .input-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .status-bar {
+      margin-top: 8px; font-size: .8rem;
+      color: var(--slate-500); min-height: 18px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .status-bar.error { color: var(--red); }
+    .status-bar.ok    { color: var(--green); }
+
+    /* Footer */
+    .chat-footer {
+      padding: 10px 14px 12px;
+      background: var(--slate-100);
+      border-top: 1px solid var(--slate-300);
+      font-size: .79rem; color: var(--slate-700); line-height: 1.55;
+      flex-shrink: 0;
+    }
+    .chat-footer strong { color: var(--slate-900); }
+
+    /* Score badge */
+    .score-badge {
+      display: inline-block;
+      background: var(--teal-lt); color: var(--teal-dk);
+      font-weight: 700; font-size: .8rem; padding: 2px 10px;
+      border-radius: 999px; margin-left: 6px;
+    }
+
+    /* ─── Responsive ───────────────────────────────── */
+    @media (max-width: 900px) {
+      body { padding-right: 16px; }
+      .page-wrap { padding: 80px 16px 48px; }
+      #chatPanel { right: 8px; width: calc(100vw - 16px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     FIXED: Toggle bar
+══════════════════════════════════════════════════════ -->
+<div class="chat-toggle-bar">
+  <button id="btnToggleChat" class="on" title="Toggle reviewer panel">
+    <span class="toggle-dot"></span>
+    📝 Chat: ON
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     FIXED: Chat / Reviewer Panel
+══════════════════════════════════════════════════════ -->
+<div id="chatPanel">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-row">
+      <div>
+        <div class="chat-title">📝 User Story Reviewer</div>
+        <div class="chat-subtitle">Quality scoring · Improvement recommendations · Testability check</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="btn btn-ghost btn-sm" id="btnClearChat">🗑 Clear</button>
+        <button class="btn btn-ghost btn-sm" id="btnCopyAll">📋 Copy All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode tabs -->
+  <div class="chat-mode-bar">
+    <button class="chat-mode-tab active" id="tabJira" data-mode="jira">🎫 JIRA Ticket</button>
+    <button class="chat-mode-tab" id="tabDirect" data-mode="direct">✍️ Paste Story</button>
+  </div>
+
+  <!-- Tip banner (content changes per mode) -->
+  <div class="chat-tip" id="chatTip">
+    Enter a <strong>JIRA ticket key</strong> (e.g. <code>SCRUM-1</code>) and click Review — the flow
+    fetches the story from JIRA and analyses it.
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg-wrap bot">
+      <div class="msg-bubble">
+        👋 Hi! I'll review your user stories across <strong>5 quality dimensions</strong>:<br><br>
+        ① Clarity &nbsp;&nbsp;② Completeness &nbsp;&nbsp;③ Business Value<br>
+        ④ Testability &nbsp;&nbsp;⑤ Technical Feasibility<br><br>
+        Each dimension is scored out of 20 (total: 100) and you'll receive
+        specific improvement recommendations.
+      </div>
+    </div>
+  </div>
+
+  <!-- Input panel -->
+  <div class="chat-input-panel">
+
+    <!-- JIRA mode -->
+    <div class="input-section active" id="sectionJira">
+      <div class="jira-input-row">
+        <input type="text" id="jiraKey" class="jira-input"
+          placeholder="e.g. SCRUM-1 or PROJ-42"
+          title="Enter the JIRA issue key" />
+        <button class="btn btn-primary" id="btnSendJira">▶ Review</button>
+      </div>
+    </div>
+
+    <!-- Direct / paste mode -->
+    <div class="input-section" id="sectionDirect">
+      <textarea id="storyInput" class="chat-textarea"
+        placeholder="Paste your user story here…&#10;Include: role, goal, acceptance criteria, business rules, and edge cases for the best review."></textarea>
+      <div class="input-actions">
+        <button class="btn btn-primary btn-sm" id="btnSendDirect">▶ Review</button>
+        <button class="btn btn-slate btn-sm" id="btnUseSample">📄 Use Sample</button>
+      </div>
+    </div>
+
+    <div class="status-bar" id="chatStatus">Ready — submit a ticket key or paste a user story.</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="chat-footer">
+    <strong>Tip:</strong> For richer feedback, include detailed acceptance criteria, preconditions,
+    and any compliance requirements. The AI acts as a senior BA with healthcare IT expertise.
+  </div>
+
+</div><!-- /#chatPanel -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN PAGE
+══════════════════════════════════════════════════════ -->
+<div class="page-wrap">
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <span class="badge">AI-Powered BA Review</span>
+    <h1>User Story<br><span>Reviewer</span></h1>
+    <p>
+      Submit any user story — either by JIRA ticket key or by pasting text directly —
+      and receive an instant quality review with individual scores, an overall rating out
+      of 100, and actionable improvement recommendations from an AI senior business analyst.
+    </p>
+  </div>
+
+  <!-- How-to -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>How to use the reviewer</h2>
+        <p>Two input modes available inside the chat panel on the right.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <ol class="steps">
+        <li><p><strong>Choose your input mode</strong> — switch between <em>JIRA Ticket</em> (fetches the story from Jira automatically) and <em>Paste Story</em> (review any text directly).</p></li>
+        <li><p><strong>Enter your story</strong> — type a JIRA key like <code>SCRUM-1</code>, or paste a full user story. Use the sample below for a fund-transfer template.</p></li>
+        <li><p><strong>Click Review</strong> — the AI evaluates Clarity, Completeness, Business Value, Testability, and Technical Feasibility, each scored out of 20.</p></li>
+        <li><p><strong>Read the report</strong> — the response is formatted as an HTML table with scores, overall rating, and specific improvement areas.</p></li>
+        <li><p><strong>Copy the output</strong> — use the 📋 Copy button on each response or <em>Copy All</em> in the header to grab all text.</p></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Quality dimensions -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>Quality dimensions evaluated</h2>
+        <p>Each dimension contributes 20 points to the overall quality score.</p>
+      </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table style="width:100%; border-collapse:collapse; font-size:.9rem;">
+        <thead>
+          <tr style="background:var(--teal-lt); color:var(--teal-dk);">
+            <th style="padding:10px 16px; text-align:left; font-weight:700; border-bottom:1px solid #99f6e4;">#</th>
+            <th style="padding:10px 16px; text-align:left; font-weight:700; border-bottom:1px solid #99f6e4;">Dimension</th>
+            <th style="padding:10px 16px; text-align:left; font-weight:700; border-bottom:1px solid #99f6e4;">What is evaluated</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--slate-100);">
+            <td style="padding:10px 16px; color:var(--teal-dk); font-weight:700;">①</td>
+            <td style="padding:10px 16px; font-weight:600;">Clarity</td>
+            <td style="padding:10px 16px; color:var(--slate-700);">Is the story unambiguous and easy to understand for all stakeholders?</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--slate-100); background:#f8fffe;">
+            <td style="padding:10px 16px; color:var(--teal-dk); font-weight:700;">②</td>
+            <td style="padding:10px 16px; font-weight:600;">Completeness</td>
+            <td style="padding:10px 16px; color:var(--slate-700);">Are acceptance criteria, preconditions, and edge cases well-defined?</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--slate-100);">
+            <td style="padding:10px 16px; color:var(--teal-dk); font-weight:700;">③</td>
+            <td style="padding:10px 16px; font-weight:600;">Business Value</td>
+            <td style="padding:10px 16px; color:var(--slate-700);">Does it reflect tangible value (patient safety, compliance, efficiency)?</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--slate-100); background:#f8fffe;">
+            <td style="padding:10px 16px; color:var(--teal-dk); font-weight:700;">④</td>
+            <td style="padding:10px 16px; font-weight:600;">Testability</td>
+            <td style="padding:10px 16px; color:var(--slate-700);">Can QA engineers derive test cases directly from the acceptance criteria?</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 16px; color:var(--teal-dk); font-weight:700;">⑤</td>
+            <td style="padding:10px 16px; font-weight:600;">Technical Feasibility</td>
+            <td style="padding:10px 16px; color:var(--slate-700);">Is it practically implementable within typical healthcare/banking system constraints?</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sample user story -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>📋 Sample User Story — Fund Transfer</h2>
+        <p>A realistic banking story ready for review. Copy it or paste it directly into the chat.</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary btn-sm" id="btnCopySample">📋 Copy</button>
+        <button class="btn btn-outline btn-sm" id="btnPasteToChat">↗ Paste to Chat</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sample-text" id="sampleContent">User Story: Fund Transfer
+
+Title:
+As a registered bank customer, I want to transfer funds between my own accounts or to external beneficiaries, so that I can make payments and manage my finances securely.
+
+Description:
+A logged-in customer must be able to initiate domestic and international fund transfers via the online/mobile banking portal. The system must enforce validation, security checks (OTP), and provide real-time status feedback.
+
+Preconditions:
+- Customer is authenticated via username + password (2FA required for high-value transfers)
+- Source account has sufficient available balance
+- Beneficiary is either pre-registered or being added for the first time (new beneficiary requires OTP verification and a 24-hour cooling-off period)
+
+Acceptance Criteria:
+AC-01: Given the user is authenticated, when they open "Transfer Funds", all eligible source accounts with current available balances are displayed.
+AC-02: When the user enters a transfer amount, the system validates: amount > 0, amount ≤ available balance, and amount ≤ single-transfer limit ($10,000).
+AC-03: When the user enters beneficiary details, the system validates the account number format and checks whether the account exists in the payment network.
+AC-04: For amounts above $500, an OTP is sent to the registered mobile number and must be verified within 5 minutes before the transfer is processed.
+AC-05: When all validations pass and the user confirms, the transfer is processed within 30 seconds; a unique reference number is generated, the balance is updated immediately, and a confirmation email/SMS is sent.
+AC-06: When a transfer fails for any reason, a descriptive error message is displayed (e.g., "Insufficient funds", "Invalid account number"), and no deduction is made from the source account.
+AC-07: All transfer attempts (successful or failed) are recorded in the audit log with timestamp, actor ID, amount, source account, destination account, and outcome.
+
+Business Rules:
+- Maximum single transfer: $10,000
+- Daily cumulative transfer limit per customer: $25,000
+- International transfers require prior KYC verification
+- Recurring/scheduled transfers must be cancellable at least 2 hours before execution
+- Transfers to new beneficiaries are subject to a 24-hour cooling-off period for fraud prevention
+
+Edge Cases:
+- Transfer to the same account as source
+- Two concurrent transfers that together exceed the daily limit
+- Transfer attempted with an expired or already-used OTP
+- Network timeout during the confirmation step
+- Transfer to a beneficiary account that has been closed or suspended</div>
+    </div>
+  </div>
+
+</div><!-- /.page-wrap -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+  /* ── API config ────────────────────────────────── */
+  const LANGFLOW = {
+    baseUrl: 'http://localhost:7860',
+    flowId:  '4e411691-8e1e-4fc8-bb30-6ed6e09b5676',
+    apiKey:  'sk-2sivlwWMtl4vA9V7iThsXAn3K7PP3N0vVgfkl-XVomE',
+    jiraHeaders: [
+      { key: 'Authorization', value: 'Basic YW1hbm9qa3VtYXJzQGdtYWlsLmNvbTpBVEFUVDN4RmZHRjBicWQtWDIwRTNVVkM0Xy15dXc0RWJydTVKUFpuZE9QYnBCOFB6RUZadzFyRVBJMUVHTy1mTlFZMWxiODlhdHhfU2RaWnU1OFUwSm9JcjdVU2lDWVU2OTFSbmVKZmVjdk8yWDJVYllWMjVyN1NOWnlKeVFIb2N0NWNodUJuX3hsOEc1N3BrazY3X3pOaFJRZjF6MUNsaE1abGZ3MkFnNy1KQ1BjTmFhQXNMWDA9QzFDODRDN0I=' },
+      { key: 'Content-Type', value: 'application/json' },
+      { key: 'Accept',        value: 'application/json' }
+    ]
+  };
+
+  /* ── DOM refs ──────────────────────────────────── */
+  const chatPanel     = document.getElementById('chatPanel');
+  const chatMessages  = document.getElementById('chatMessages');
+  const chatStatus    = document.getElementById('chatStatus');
+  const chatTip       = document.getElementById('chatTip');
+  const btnToggle     = document.getElementById('btnToggleChat');
+  const btnClear      = document.getElementById('btnClearChat');
+  const btnCopyAll    = document.getElementById('btnCopyAll');
+  const tabJira       = document.getElementById('tabJira');
+  const tabDirect     = document.getElementById('tabDirect');
+  const sectionJira   = document.getElementById('sectionJira');
+  const sectionDirect = document.getElementById('sectionDirect');
+  const jiraKeyInput  = document.getElementById('jiraKey');
+  const storyInput    = document.getElementById('storyInput');
+  const btnSendJira   = document.getElementById('btnSendJira');
+  const btnSendDirect = document.getElementById('btnSendDirect');
+  const btnUseSample  = document.getElementById('btnUseSample');
+  const btnCopySample = document.getElementById('btnCopySample');
+  const btnPasteChat  = document.getElementById('btnPasteToChat');
+  const sampleText    = document.getElementById('sampleContent').innerText.trim();
+
+  /* ── State ─────────────────────────────────────── */
+  let chatOpen = true;
+  let activeMode = 'jira'; // 'jira' | 'direct'
+
+  /* ── Toggle panel ──────────────────────────────── */
+  function syncToggle() {
+    if (chatOpen) {
+      btnToggle.innerHTML = '<span class="toggle-dot"></span> 📝 Chat: ON';
+      btnToggle.className = 'on';
+      chatPanel.classList.remove('hidden');
+    } else {
+      btnToggle.innerHTML = '<span class="toggle-dot"></span> 📝 Chat: OFF';
+      btnToggle.className = 'off';
+      chatPanel.classList.add('hidden');
+    }
+  }
+  btnToggle.addEventListener('click', () => { chatOpen = !chatOpen; syncToggle(); });
+
+  /* ── Mode switch ───────────────────────────────── */
+  const TIPS = {
+    jira:   'Enter a <strong>JIRA ticket key</strong> (e.g. <code>SCRUM-1</code>) and click Review — the flow fetches the story from JIRA and analyses it.',
+    direct: 'Paste any <strong>user story text</strong> below and click Review — the AI evaluates it directly without fetching from JIRA.'
+  };
+
+  function switchMode(mode) {
+    activeMode = mode;
+    tabJira.classList.toggle('active', mode === 'jira');
+    tabDirect.classList.toggle('active', mode === 'direct');
+    sectionJira.classList.toggle('active', mode === 'jira');
+    sectionDirect.classList.toggle('active', mode === 'direct');
+    chatTip.innerHTML = TIPS[mode];
+  }
+  tabJira.addEventListener('click', () => switchMode('jira'));
+  tabDirect.addEventListener('click', () => switchMode('direct'));
+
+  /* ── Clear ─────────────────────────────────────── */
+  btnClear.addEventListener('click', () => {
+    chatMessages.innerHTML = '';
+    addSystemMsg('Chat cleared. Submit a ticket key or paste a user story to start a new review.');
+    setStatus('Chat cleared.', '');
+  });
+
+  /* ── Copy all ──────────────────────────────────── */
+  btnCopyAll.addEventListener('click', async () => {
+    const els = chatMessages.querySelectorAll('.msg-wrap.bot .msg-bubble');
+    const text = Array.from(els).map(el => el.innerText.trim()).join('\n\n---\n\n');
+    await copyText(text);
+    setStatus('All review output copied to clipboard.', 'ok');
+  });
+
+  /* ── Sample story controls ─────────────────────── */
+  btnCopySample.addEventListener('click', async () => {
+    await copyText(sampleText);
+    setStatus('Sample story copied to clipboard.', 'ok');
+  });
+  btnPasteChat.addEventListener('click', () => {
+    switchMode('direct');
+    storyInput.value = sampleText;
+    if (!chatOpen) { chatOpen = true; syncToggle(); }
+    storyInput.focus();
+    setStatus('Sample story pasted into the Paste Story tab.', 'ok');
+  });
+  btnUseSample.addEventListener('click', () => {
+    storyInput.value = sampleText;
+    storyInput.focus();
+    setStatus('Sample story loaded into input.', 'ok');
+  });
+
+  /* ── Send — JIRA mode ──────────────────────────── */
+  btnSendJira.addEventListener('click', () => sendJira());
+  jiraKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendJira(); });
+
+  async function sendJira() {
+    const key = jiraKeyInput.value.trim().toUpperCase();
+    if (!key) { setStatus('Please enter a JIRA ticket key.', 'error'); return; }
+    if (!/^[A-Z]+-\d+$/.test(key)) { setStatus('Invalid key format. Expected e.g. SCRUM-1.', 'error'); return; }
+
+    addUserMsg(`Review JIRA ticket: ${key}`);
+    jiraKeyInput.value = '';
+    setStatus(`Fetching ticket ${key} from JIRA via Langflow…`, '');
+    setBusy(true);
+
+    const tweaks = {
+      'APIRequest-4L2FL': {
+        body: [
+          { key: 'jql',        value: `key = "${key}"` },
+          { key: 'fields',     value: '["key","summary","description","status","reporter"]' },
+          { key: 'maxResults', value: '1' }
+        ],
+        headers: LANGFLOW.jiraHeaders
+      }
+    };
+
+    await callApi(`Review user story from JIRA ticket ${key}`, tweaks);
+    setBusy(false);
+  }
+
+  /* ── Send — direct mode ────────────────────────── */
+  btnSendDirect.addEventListener('click', () => sendDirect());
+  storyInput.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) sendDirect(); });
+
+  async function sendDirect() {
+    const story = storyInput.value.trim();
+    if (!story) { setStatus('Please paste a user story before clicking Review.', 'error'); return; }
+
+    addUserMsg(story.length > 120 ? story.slice(0, 117) + '…' : story);
+    storyInput.value = '';
+    setStatus('Sending user story to Langflow for review…', '');
+    setBusy(true);
+
+    const tweaks = {
+      'Prompt Template-p7mfW': { userStory: story }
+    };
+
+    await callApi(story, tweaks);
+    setBusy(false);
+  }
+
+  /* ── Core API call ─────────────────────────────── */
+  async function callApi(inputValue, tweaks) {
+    const typingEl = addTypingIndicator();
+    try {
+      const url = `${LANGFLOW.baseUrl}/api/v1/run/${LANGFLOW.flowId}?stream=false`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': LANGFLOW.apiKey
+        },
+        body: JSON.stringify({
+          output_type: 'text',
+          input_type:  'text',
+          input_value: inputValue,
+          tweaks
+        })
+      });
+      typingEl.remove();
+
+      if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+
+      const data = await res.json();
+      const reply = extractResponse(data);
+      addBotMsg(reply);
+      setStatus('Review complete.', 'ok');
+    } catch (err) {
+      typingEl.remove();
+      addBotMsg(
+        `⚠️ <strong>Could not reach the Langflow API.</strong><br><br>` +
+        `Make sure Langflow is running at <code>${LANGFLOW.baseUrl}</code> and ` +
+        `flow <code>${LANGFLOW.flowId}</code> is active.<br><br>` +
+        `Error: ${err.message}`
+      );
+      setStatus('API error — see message above.', 'error');
+      console.error('[Langflow]', err);
+    }
+  }
+
+  /* ── Response parser ───────────────────────────── */
+  function extractResponse(data) {
+    if (!data || typeof data !== 'object') return String(data);
+    const outer = data?.outputs;
+    if (Array.isArray(outer)) {
+      for (const o of outer) {
+        for (const item of (o?.outputs || [])) {
+          const r = item?.results;
+          if (r?.text?.text)           return r.text.text;
+          if (r?.text?.data?.text)     return r.text.data.text;
+          if (r?.message?.text)        return r.message.text;
+          if (r?.message?.data?.text)  return r.message.data.text;
+          if (item?.artifacts?.message) return item.artifacts.message;
+          if (item?.artifacts?.text)    return item.artifacts.text;
+        }
+      }
+    }
+    if (data.text)   return data.text;
+    if (data.output) return data.output;
+    return JSON.stringify(data, null, 2);
+  }
+
+  /* ── DOM helpers ───────────────────────────────── */
+  function addUserMsg(text) {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap user';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = text;
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    meta.innerHTML = `<span class="msg-time">${timeNow()}</span>`;
+    wrap.appendChild(bubble);
+    wrap.appendChild(meta);
+    chatMessages.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function addBotMsg(text) {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap bot';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+
+    if (looksLikeHtml(text)) {
+      const htmlDiv = document.createElement('div');
+      htmlDiv.className = 'html-render';
+      htmlDiv.innerHTML = text;
+      bubble.appendChild(htmlDiv);
+    } else {
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+    const time = document.createElement('span');
+    time.className = 'msg-time';
+    time.textContent = timeNow();
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'btn-copy-msg';
+    copyBtn.textContent = '📋 Copy';
+    copyBtn.addEventListener('click', async () => {
+      await copyText(bubble.innerText.trim());
+      copyBtn.textContent = '✓ Copied!';
+      setTimeout(() => { copyBtn.textContent = '📋 Copy'; }, 2000);
+    });
+    meta.appendChild(time);
+    meta.appendChild(copyBtn);
+    wrap.appendChild(bubble);
+    wrap.appendChild(meta);
+    chatMessages.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function addSystemMsg(html) {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap bot';
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = html;
+    wrap.appendChild(bubble);
+    chatMessages.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function addTypingIndicator() {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-wrap bot';
+    wrap.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    chatMessages.appendChild(wrap);
+    scrollBottom();
+    return wrap;
+  }
+
+  function setBusy(busy) {
+    btnSendJira.disabled   = busy;
+    btnSendDirect.disabled = busy;
+  }
+
+  function scrollBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
+
+  function setStatus(msg, type) {
+    chatStatus.textContent = msg;
+    chatStatus.className   = 'status-bar' + (type ? ` ${type}` : '');
+  }
+
+  function timeNow() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function looksLikeHtml(s) {
+    return /<(table|tr|td|th|h[1-6]|ul|ol|li|div|p|span|strong|em|br)\b/i.test(s);
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  }
+
+  /* ── Init ──────────────────────────────────────── */
+  syncToggle();
+</script>
+
+</body>
+</html>

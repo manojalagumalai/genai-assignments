@@ -1,0 +1,23 @@
+env: qa
+baseUri: https://qa.api.example.com
+basePath: /v1
+port: 443
+
+auth:
+  type: bearer
+  token: qa-bearer-token-here
+
+timeouts:
+  connectionTimeout: 10000
+  readTimeout: 15000
+  responseTimeThreshold: 3000
+
+headers:
+  Content-Type: application/json
+  Accept: application/json
+  X-Api-Version: "1.0"
+
+database:
+  host: qa-db.example.com
+  port: 5432
+  name: qa_db

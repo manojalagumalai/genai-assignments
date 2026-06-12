@@ -1,0 +1,52 @@
+===HTML===
+<input type="text" size="20" autocomplete="off" id="ext-gen253" name="id" class=" x-form-text x-form-field" style="width: 214px;">
+<input type="text" size="20" autocomplete="off" id="ext-gen255" name="firstName" class=" x-form-text x-form-field" style="width: 214px;">
+<input type="text" size="20" autocomplete="off" id="ext-gen253" name="id" class=" x-form-text x-form-field" style="width: 214px;">
+<input type="text" size="20" autocomplete="off" id="ext-gen253" name="id" class=" x-form-text x-form-field" style="width: 214px;">
+<button class="x-btn-text" type="button" id="ext-gen341">Find Leads</button>
+
+===JAVA===
+package com.leaftaps.pages;
+
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+
+/**
+ * Page object representing the Find Lead page.
+ * Provides methods to search for leads and interact with search results.
+ * @author Auto-generated
+ */
+public class FindLeadPage extends ProjectSpecificMethods {
+
+	/**
+	 * Enters the first name in the Find Lead form.
+	 * @param findfirstname The first name to search for
+	 * @return The current FindLeadPage instance
+	 */
+	public FindLeadPage enterLeadName(String findfirstname) {
+		clearAndType(locateElement(Locators.XPATH,"(//input[@name='firstName'])[3]"), findfirstname);
+		reportStep(findfirstname +" first name is entered successfully", "pass");
+		return this;
+	}
+
+	/**
+	 * Enters the lead ID in the Find Lead form.
+	 * @param id The lead ID to search for
+	 * @return The current FindLeadPage instance
+	 */
+	public FindLeadPage enterLeadID(String id) {
+		clearAndType(locateElement(Locators.NAME,"id"), id);
+		reportStep(id +" first name is entered successfully", "pass");
+		return this;
+	}
+
+	/**
+	 * Clicks the Find Leads button to perform the search.
+	 * @return The current FindLeadPage instance
+	 */
+	public FindLeadPage clickFindleadsButton() {
+		click(locateElement(Locators.XPATH,"//button[text()='Find Leads']"));
+		reportStep("FindLeads Button is clicked", "pass");
+		return this;
+	}

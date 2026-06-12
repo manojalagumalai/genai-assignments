@@ -1,0 +1,87 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# PR Validation Pipeline
+# Runs smoke tests only on every Pull Request for fast feedback.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: PR Validation - Smoke Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened]
+
+env:
+  JAVA_VERSION: '11'
+
+jobs:
+  pr-smoke:
+    name: 🔍 PR Smoke Check [qa]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ☕ Set Up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: 🔐 Inject API Token
+        run: |
+          sed -i "s|token:.*|token: ${{ secrets.API_BEARER_TOKEN }}|g" \
+            src/test/resources/config/qa.yml
+
+      - name: 📦 Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: 🧪 Run Smoke Tests
+        run: |
+          mvn test \
+            -Dsuite=smoke \
+            -Denv=qa \
+            -Dretries=0 \
+            --no-transfer-progress \
+            -B
+
+      - name: 📊 Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-smoke-results-${{ github.event.pull_request.number }}
+          path: allure-results/
+          retention-days: 3
+
+      - name: 💬 Comment PR with Results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}' === 'success' ? '✅ Passed' : '❌ Failed';
+            const runUrl = `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+            const body = `## 🧪 Smoke Test Results: ${status}
+
+            | Item | Value |
+            |------|-------|
+            | Suite | Smoke |
+            | Environment | QA |
+            | Branch | \`${{ github.head_ref }}\` |
+            | Run | [View Details](${runUrl}) |
+
+            ${status === '✅ Passed' ? '> ✅ Safe to merge — all smoke tests passed!' : '> ❌ Please fix failing tests before merging.'}
+            `;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

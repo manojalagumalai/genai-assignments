@@ -1,0 +1,27 @@
+===HTML===
+<a href="/crmsfa/control/leadsMain" id="ext-gen614">Leads</a>
+
+===JAVA===
+package com.leaftaps.pages;
+
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+/**
+ * Page object representing the My Home page after navigating from HomePage.
+ * Provides methods to navigate to the Leads page.
+ * @author Auto-generated
+ */
+public class MyHomePage extends ProjectSpecificMethods {
+
+	/**
+	 * Clicks the Leads link to navigate to MyLeadsPage.
+	 * @return A new MyLeadsPage instance
+	 */
+	public MyLeadsPage clickLeadsLink() {
+		click(locateElement(Locators.LINK_TEXT, "Leads"));
+		reportStep("Leads link is clicked", "pass");
+		return new MyLeadsPage();
+	}
+
+}

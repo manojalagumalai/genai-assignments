@@ -1,0 +1,38 @@
+===HTML===
+<input id="uploadedFile" name="uploadedFile" type="file" size="30" maxlength="" class="inputBox" onchange="">
+<input type="submit" value="Upload and Import" class="smallSubmit" onclick="submitFormAndReplaceButtonTextWithSingleClick(this, 'Uploading... Please Wait');" id="ext-gen593">
+
+===JAVA===
+package com.leaftaps.pages;
+
+import com.framework.selenium.api.design.Locators;
+import com.framework.testng.api.base.ProjectSpecificMethods;
+
+/**
+ * Page object representing the Upload Lead page.
+ * Provides methods to upload a file and import leads.
+ * @author Auto-generated
+ */
+public class UploadLeadPage extends ProjectSpecificMethods {
+
+	/**
+	 * Uploads a file for lead import.
+	 * @param fileName The file name to upload
+	 * @return The current UploadLeadPage instance
+	 */
+	public UploadLeadPage uploadFile(String fileName) {
+		type(locateElement(Locators.ID,"uploadedFile"), fileName);
+		reportStep(fileName+" is uploaded", "pass");
+		return this;
+	}
+
+	/**
+	 * Clicks the Upload and Import button to import leads.
+	 * @return The current UploadLeadPage instance
+	 */
+	public UploadLeadPage clickUploadAndImport() {
+		click(locateElement(Locators.XPATH,"//input[@value='Upload and Import']"));
+		return this;
+	}
+
+}

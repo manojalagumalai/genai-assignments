@@ -1,0 +1,33 @@
+{
+    "id": "chatcmpl-769aa961-8ba1-4fa5-95a6-fc39234f7fe1",
+    "object": "chat.completion",
+    "created": 1779916479,
+    "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "اجعل 2026 عامك\nعروض رأس السنة\nوصلت الآن"
+            },
+            "logprobs": null,
+            "finish_reason": "stop"
+        }
+    ],
+    "usage": {
+        "queue_time": 0.201975165,
+        "prompt_tokens": 1627,
+        "prompt_time": 0.069085255,
+        "completion_tokens": 20,
+        "completion_time": 0.045252044,
+        "total_tokens": 1647,
+        "total_time": 0.114337299
+    },
+    "usage_breakdown": null,
+    "system_fingerprint": "fp_f08cd12a81",
+    "x_groq": {
+        "id": "req_01ksnmm6syfedt82yf8k0epmdw",
+        "seed": 692340880
+    },
+    "service_tier": "on_demand"
+}
